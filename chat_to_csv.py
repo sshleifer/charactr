@@ -9,7 +9,6 @@ CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 
 # contacts data stored in ~/Library/Application\ Support/ AddressBook
 # not sure yet how to use the data (complicated format)
-#
 
 ###Random Debugging Tools
 def find_unis(df):
@@ -61,6 +60,7 @@ def addresses():
   return nt
 
 def main():
+  x = 5
   msg = writeChat()
   nums = addresses()
   mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
