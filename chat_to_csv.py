@@ -1,10 +1,14 @@
 # Reads in some tables from chat.db and joins.
-# Sam Shleifer, April 8, 2015.'''
+# Sam Shleifer, Peter Dewire
+# April 8, 2015.
 
 import os
 import pandas as pd
 import sqlite3
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
+
+# contacts data stored in ~/Library/Application\ Support/ AddressBook
+# not sure yet how to use the data (complicated format)
 
 ###Random Debugging Tools
 def find_unis(df):

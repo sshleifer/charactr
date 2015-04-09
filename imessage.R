@@ -22,4 +22,7 @@ ppl = group_by(msg,chat_identifier) %>%
 ggplot(ppl, aes(x=lensent, y=lenrec, size=n)) +
   geom_smooth() + 
   geom_point() +
-  theme_bw()
+  theme_bw()  +
+  xlab('Length, messages sent') +
+  ylab('Length, messages received') +
+  labs(n = "Cylinders")
