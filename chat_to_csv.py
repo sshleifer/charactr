@@ -60,6 +60,6 @@ def main():
   nums = addresses()
   mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
       how='left')
-  
+   
 if __name__ == '__main__':
     main()

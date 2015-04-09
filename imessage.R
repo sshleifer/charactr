@@ -12,13 +12,12 @@ msg = mutate(msg,
 
 
 ggplot(msg, aes(x=ml, fill=io))+geom_density(alpha=.7) +
-  scale_x_log10() +
-  facet_wrap(~handle_id)
+  scale_x_log10()
 
-
-ppl = group_by(msg,handle_id) %>% 
-  summarise(msent = mean(is_sent), n=length(is_sent), lensent = sum(is_sent*ml), totlen = sum(ml))%>%
-  mutate(lenrec =  totlen-lensent) %>% filter(handle_id != 0)
+ppl = group_by(msg,chat_identifier) %>% 
+  summarise(msent = mean(is_sent), n=length(is_sent), lensent = sum(is_sent*ml), totlen = sum(ml),
+            num.snt = sum(is_sent), num.msg=length(is_sent))%>%
+  mutate(lenrec =  totlen-lensent, num.rec = num.msg-num.snt)
                                              
 ggplot(ppl, aes(x=lensent, y=lenrec, size=n)) +
   geom_smooth() + 
