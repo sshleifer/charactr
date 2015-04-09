@@ -60,7 +60,6 @@ def addresses():
   return nt
 
 def main():
-  x = 5
   msg = writeChat()
   nums = addresses()
   mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
