@@ -1,12 +1,14 @@
 # Reads in some tables from chat.db and joins.
 # Sam Shleifer, Peter Dewire
 # April 8, 2015.
-
+import datetime as dt
 import os
 import pandas as pd
+import seaborn as sns
 import sqlite3
+import time
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
-
+BASE = 978307200
 # contacts data stored in ~/Library/Application\ Support/ AddressBook
 # not sure yet how to use the data (complicated format)
 
@@ -20,9 +22,9 @@ def find_unis(df):
       continue
   return unis
 
-def getTabs(c):
-  c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-  return c.fetchall()
+def getTabs(cursor):
+  cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+  return cursor.fetchall()
 
 def tbl_to_df(tab_name, con):
   query = "SELECT * from " + tab_name
@@ -45,6 +47,7 @@ def writeChat():
   return msg_final[keep]
 
 def addresses():
+  '''Attempt to make table where names can be looked up using phone numbers.'''
   source = os.listdir(os.path.expanduser("~/Library/Application Support/AddressBook/Sources"))[0]
   database = os.path.expanduser(os.path.join("~/Library/Application Support",
     "AddressBook/Sources", source,
@@ -59,11 +62,21 @@ def addresses():
   nt.colums=['number','fname','lname']
   return nt
 
+def timefix(since, base): 
+  return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(since + BASE))
+
+def mutate(msg):
+  msg['date'] = msg.date.apply(lambda x: timefix(x, BASE))
+  msg['msg_len'] =  msg.text.apply(lambda x: len(x) if x else 0)
+  msg['snt_string'] = msg.is_sent.apply(lambda x: 'sent' if x==1 else 'got') 
+  return msg
+
 def main():
   msg = writeChat()
   nums = addresses()
   mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
       how='left')
-   
+  #ABOVE LINE IS BROKEN 
+
 if __name__ == '__main__':
     main()
