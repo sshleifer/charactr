@@ -2,13 +2,11 @@
 # Sam Shleifer, Peter Dewire
 # April 8, 2015.
 
+import re
 import os
 import pandas as pd
 import sqlite3
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
-
-# contacts data stored in ~/Library/Application\ Support/ AddressBook
-# not sure yet how to use the data (complicated format)
 
 ###Random Debugging Tools
 def find_unis(df):
@@ -20,6 +18,7 @@ def find_unis(df):
       continue
   return unis
 
+# takes a cursor c
 def getTabs(c):
   c.execute("SELECT name FROM sqlite_master WHERE type='table';")
   return c.fetchall()
@@ -44,7 +43,7 @@ def writeChat():
   msg_final[keep].to_csv('msg.csv', encoding='utf-8') 
   return msg_final[keep]
 
-def addresses():
+def addresses_orig():
   source = os.listdir(os.path.expanduser("~/Library/Application Support/AddressBook/Sources"))[0]
   database = os.path.expanduser(os.path.join("~/Library/Application Support",
     "AddressBook/Sources", source,
@@ -59,11 +58,52 @@ def addresses():
   nt.colums=['number','fname','lname']
   return nt
 
+# issues: see trello
+def addresses():
+    path = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
+    ADDRESS_DB = os.path.expanduser(path)
+    ad_db = sqlite3.connect(ADDRESS_DB)
+    ad_curs = ad_db.cursor()
+    adtabs = getTabs(ad_curs)
+    query = "SELECT ZSTRINGFORINDEXING FROM ZABCDCONTACTINDEX"
+
+    # contact_list is a Series of strings that are (usually):
+    #    'firstname lastname phonenumber phonenumber'
+    contact_list = pd.read_sql(query, ad_db)
+    name_pattern = re.compile("[a-z]* [a-z]*")
+    num_pattern = re.compile("[2-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]")
+
+    # name, number dictionary
+    nn_map = {}
+    
+    for i in range(2, len(contact_list)):
+        # get string
+        t = contact_list.ix[i]
+        s = t[0]
+
+        # match name
+        m = name_pattern.search(s)
+        name = s[m.start():m.end()]
+        
+        # match number
+        m = num_pattern.search(s)
+        if m:
+            num = s[m.start():m.end()]
+        else:
+            print "error, number not matched"
+            num = '00000000000'
+        
+        # add to dictionary
+        nn_map[num] = name
+
+    print nn_map
+
+
 def main():
-  msg = writeChat()
+  #msg = writeChat()
   nums = addresses()
-  mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
-      how='left')
+  #mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
+  #    how='left')
    
 if __name__ == '__main__':
     main()
