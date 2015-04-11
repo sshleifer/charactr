@@ -8,9 +8,9 @@ The data is stored by the iMessage app at ~/Library/Messages/chat.db.
 - clone this repo
 - python chat_to_csv.py
 - Data will be in msg.csv
+- Plots will be in fig1.png and fig2.png
 
 ###TODO
-
+- D3
 - Join AddressBook
 - Make Nice charts
-- Web-based UI for charts?
