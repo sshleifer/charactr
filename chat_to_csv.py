@@ -70,7 +70,7 @@ def writeChat():
   keep = ['ROWID_x','text','date','chat_identifier','is_sent']
   return clean(msg_final[keep])
 
-def addresses():
+def orig_addresses():
   '''Attempt to make table where names can be looked up using phone numbers.'''
   src = os.listdir(os.path.expanduser("~/Library/Application Support/AddressBook/Sources"))[0]
   database = os.path.expanduser(os.path.join("~/Library/Application Support",
@@ -85,6 +85,49 @@ def addresses():
   nt = numtab[['ZFULLNUMBER','ZFIRSTNAME','ZLASTNAME']]
   nt.colums=['number','fname','lname']
   return nt
+
+# addresses() takes no parameters and returns a dictionary (nn_map) mapping
+# phone numbers to contact names
+def addresses():
+    path = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
+    ADDRESS_DB = os.path.expanduser(path)
+    ad_db = sqlite3.connect(ADDRESS_DB)
+    ad_curs = ad_db.cursor()
+    adtabs = getTabs(ad_curs)
+    query = "SELECT ZSTRINGFORINDEXING FROM ZABCDCONTACTINDEX"
+
+    # contact_list is a Series of strings that are (usually):
+    #    'firstname lastname phonenumber phonenumber'
+    contact_list = pd.read_sql(query, ad_db)
+    name_pattern = re.compile("[a-z]* [a-z]*")
+    num_pattern = re.compile("[2-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]")
+
+    # name, number dictionary
+    nn_map = {}
+    
+    for i in range(2, len(contact_list)):
+        # get string
+        t = contact_list.ix[i]
+        s = t[0]
+
+        # match name
+        m = name_pattern.search(s)
+        name = s[m.start():m.end()]
+        
+        # match number
+        m = num_pattern.search(s)
+        if m:
+            num = s[m.start():m.end()]
+        else:
+            print "error, number not matched"              # should not happen
+            num = '00000000000'
+        
+        # add to dictionary
+        nn_map[num] = name
+
+    print nn_map
+    return nn_map
+
 
 def main():
   msg = writeChat()
