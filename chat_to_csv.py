@@ -68,8 +68,6 @@ def writeChat():
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
   msg_final = pd.merge(msg, full_chat,left_on='ROWID', right_on='message_id')
   keep = ['ROWID_x','text','date','chat_identifier','is_sent']
-  print 'Writing', len(msg_final), 'texts to msg.csv...'
-  msg_final[keep].to_csv('msg.csv', encoding='utf-8') 
   return clean(msg_final[keep])
 
 def addresses():
@@ -91,6 +89,10 @@ def addresses():
 def main():
   msg = writeChat()
   ppl = byChat(msg)
+  print 'Writing', len(msg), 'texts to msg.csv and ppl.csv'
+  msg.to_csv('msg.csv',encoding='utf-8')
+  ppl.to_csv('ppl.csv', encoding='utf-8')
+  
   fig1(msg, FIG_PATH[0])
   fig2(ppl, FIG_PATH[1])
   print 'Creating two charts to', FIG_PATH[0], 'and', FIG_PATH[1], '.' 
