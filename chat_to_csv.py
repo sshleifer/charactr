@@ -5,14 +5,12 @@ import datetime as dt
 import numpy as np
 import os
 import pandas as pd
-import seaborn as sns
 import sqlite3
 import time
+from figures import fig1, fig2
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
-# contacts data stored in ~/Library/Application\ Support/ AddressBook
-# not sure yet how to use the data (complicated format)
-
+FIG_PATH = ['fig1.png','fig2.png']
 ###Random Debugging Tools
 def find_unis(df):
   unis = {}
@@ -54,13 +52,14 @@ def byChat(msg):
 
 def writeChat():
   '''Writes message number,type. text, other person and date to msg.csv'''
-  def clean(msg):
+  def clean(old):
     '''Cleans DF columns'''
+    msg = old.copy()
     msg['date'] = msg.loc[:,'date'].apply(lambda x: timefix(x, BASE))
     msg['msg_len'] =  msg.loc[:,'text'].apply(lambda x: len(x) if x else 0)
     msg['snt_string'] = msg.loc[:,'is_sent'].apply(lambda x: 'sent' if x==1 else 'got') 
     return msg
-  
+
   db = sqlite3.connect(CHAT_DB)
   msg = pd.read_sql("SELECT * from message", db)
   chat = pd.read_sql("SELECT * from chat", db)
@@ -92,11 +91,13 @@ def addresses():
 def main():
   msg = writeChat()
   ppl = byChat(msg)
-
+  fig1(msg, FIG_PATH[0])
+  fig2(ppl, FIG_PATH[1])
+  print 'Creating two charts to', FIG_PATH[0], 'and', FIG_PATH[1], '.' 
   nums = addresses()
   mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
       how='left')
   #ABOVE LINE IS BROKEN 
 
 if __name__ == '__main__':
-    main()
+  main()
