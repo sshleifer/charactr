@@ -1,34 +1,23 @@
 # Reads in some tables from chat.db and joins.
 # Sam Shleifer, Peter Dewire
 # April 8, 2015.
+from contacts import *
 import datetime as dt
+from figures import fig1, fig2
 import numpy as np
 import os
 import pandas as pd
+import re
 import sqlite3
 import time
-from figures import fig1, fig2
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
 FIG_PATH = ['fig1.png','fig2.png']
-###Random Debugging Tools
-def find_unis(df):
-  unis = {}
-  for col in df.columns:
-    try:
-      unis[col] = len(df[col].unique())
-    except TypeError:
-      continue
-  return unis
 
 def getTabs(cursor):
+  '''Assists database navigation.'''
   cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
   return cursor.fetchall()
-
-def tbl_to_df(tab_name, con):
-  query = "SELECT * from " + tab_name
-  df = pd.read_sql(query, con)
-  return df
 
 ####Read in Chat
 def timefix(since, base): 
@@ -70,79 +59,16 @@ def writeChat():
   keep = ['ROWID_x','text','date','chat_identifier','is_sent']
   return clean(msg_final[keep])
 
-def orig_addresses():
-  '''Attempt to make table where names can be looked up using phone numbers.'''
-  src = os.listdir(os.path.expanduser("~/Library/Application Support/AddressBook/Sources"))[0]
-  database = os.path.expanduser(os.path.join("~/Library/Application Support",
-    "AddressBook/Sources", src,
-    "AddressBook-v22.abcddb"))
-  connection = sqlite3.connect(database)
-  ad = connection.cursor()
-  adtabs = getTabs(ad) #For debugging
-  numtab = pd.read_sql("""SELECT * FROM ZABCDPHONENUMBER
-              LEFT OUTER JOIN ZABCDRECORD
-              ON ZABCDPHONENUMBER.Z_PK = ZABCDRECORD.Z_PK""", connection)
-  nt = numtab[['ZFULLNUMBER','ZFIRSTNAME','ZLASTNAME']]
-  nt.colums=['number','fname','lname']
-  return nt
-
-# addresses() takes no parameters and returns a dictionary (nn_map) mapping
-# phone numbers to contact names
-def addresses():
-    path = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
-    ADDRESS_DB = os.path.expanduser(path)
-    ad_db = sqlite3.connect(ADDRESS_DB)
-    ad_curs = ad_db.cursor()
-    adtabs = getTabs(ad_curs)
-    query = "SELECT ZSTRINGFORINDEXING FROM ZABCDCONTACTINDEX"
-
-    # contact_list is a Series of strings that are (usually):
-    #    'firstname lastname phonenumber phonenumber'
-    contact_list = pd.read_sql(query, ad_db)
-    name_pattern = re.compile("[a-z]* [a-z]*")
-    num_pattern = re.compile("[2-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]")
-
-    # name, number dictionary
-    nn_map = {}
-    
-    for i in range(2, len(contact_list)):
-        # get string
-        t = contact_list.ix[i]
-        s = t[0]
-
-        # match name
-        m = name_pattern.search(s)
-        name = s[m.start():m.end()]
-        
-        # match number
-        m = num_pattern.search(s)
-        if m:
-            num = s[m.start():m.end()]
-        else:
-            print "error, number not matched"              # should not happen
-            num = '00000000000'
-        
-        # add to dictionary
-        nn_map[num] = name
-
-    print nn_map
-    return nn_map
-
-
 def main():
   msg = writeChat()
   ppl = byChat(msg)
   print 'Writing', len(msg), 'texts to msg.csv and ppl.csv'
   msg.to_csv('msg.csv',encoding='utf-8')
   ppl.to_csv('ppl.csv', encoding='utf-8')
-  
+
   fig1(msg, FIG_PATH[0])
   fig2(ppl, FIG_PATH[1])
   print 'Creating two charts to', FIG_PATH[0], 'and', FIG_PATH[1], '.' 
-  nums = addresses()
-  mgd = msg.merge(nums, left_on='chat_identifier', right_on='ZFULLNUMBER',
-      how='left')
-  #ABOVE LINE IS BROKEN 
 
 if __name__ == '__main__':
   main()
