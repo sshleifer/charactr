@@ -12,17 +12,16 @@ msg = mutate(msg,
 
 
 ggplot(msg, aes(x=ml, fill=io))+geom_density(alpha=.7) +
-  scale_x_log10()
-
+scale_x_log10()
+#mean(sent)
+#lens: sent
 ppl = group_by(msg,chat_identifier) %>% 
   summarise(msent = mean(is_sent), n=length(is_sent), lensent = sum(is_sent*ml), totlen = sum(ml),
             num.snt = sum(is_sent), num.msg=length(is_sent))%>%
   mutate(lenrec =  totlen-lensent, num.rec = num.msg-num.snt)
-                                             
+
 ggplot(ppl, aes(x=lensent, y=lenrec, size=n)) +
   geom_smooth() + 
   geom_point() +
   theme_bw()  +
-  xlab('Length, messages sent') +
-  ylab('Length, messages received') +
-  labs(n = "Cylinders")
+  labs(x='Length(msgs Sent)', y='Length(msgs received)', title='Length of Messages sent vs. Received.', size='Number of Msgs')
