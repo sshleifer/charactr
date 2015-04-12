@@ -6,7 +6,7 @@ import fnmatch
 
 PATH = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
 def possDB():
-  '''Experimental attempt at finding all .abcddb files in file system.'''z
+  '''Experimental attempt at finding all .abcddb files in file system.'''
   matches = []
   for root, dirnames, filenames in os.walk('~/Library'):
     for filename in fnmatch.filter(filenames, '*.abcddb'):
