@@ -2,13 +2,16 @@ import numpy as np
 import os
 import pandas as pd
 import sqlite3
+import fnmatch
 
 PATH = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
-SRC = os.listdir(os.path.expanduser("~/Library/Application Support/AddressBook/Sources"))[0]
-BACKUP = os.path.expanduser(os.path.join("~/Library/Application Support",
-    "AddressBook/Sources", SRC,
-    "AddressBook-v22.abcddb"))
 # TODO(SS). Glob through looking for abcddb
+def possDB():
+  matches = []
+  for root, dirnames, filenames in os.walk('~/Library'):
+    for filename in fnmatch.filter(filenames, '*.abcddb'):
+      matches.append(os.path.join(root, filename))
+  return matches
 
 def getTabs(cursor):
   '''Assists database navigation.'''
@@ -31,9 +34,18 @@ def getData(path):
 
 def addresses():
   '''create the {number: name} dictionary.'''
-  cl1 = getData(PATH) 
-  cl2 = getData(BACKUP)
-  contact_list = cl1 + cl2 
+  contact_list = getData(PATH)
+  if len(contact_list) == 0:
+    srcs = os.path.expanduser("~/Library/Application Support/AddressBook/Sources")
+    if os.path.exists(srcs):
+      SRC = os.listdir(srcs)[0]
+      BACKUP = os.path.expanduser(os.path.join("~/Library/Application Support",
+        "AddressBook/Sources", SRC,
+        "AddressBook-v22.abcddb"))
+      contact_list = getData(BACKUP)
+    else:
+      return {}
+  
   def get_name(row):
     return row[0] if row[0] == row[1] else ' '.join(row[0:2])
     
