@@ -2,7 +2,6 @@
 # Sam Shleifer, Peter Dewire
 # April 8, 2015.
 from contacts import *
-import datetime as dt
 from figures import fig1, fig2
 import numpy as np
 import os

@@ -5,8 +5,8 @@ import sqlite3
 import fnmatch
 
 PATH = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
-# TODO(SS). Glob through looking for abcddb
 def possDB():
+  '''Experimental attempt at finding all .abcddb files in file system.'''z
   matches = []
   for root, dirnames, filenames in os.walk('~/Library'):
     for filename in fnmatch.filter(filenames, '*.abcddb'):
@@ -50,7 +50,4 @@ def addresses():
     return row[0] if row[0] == row[1] else ' '.join(row[0:2])
     
   clist = [x.replace('+1','').split() for x in contact_list]
-  cdict =  {x[-1][-10:]:get_name(x) for x in clist} 
-
-  return cdict 
-
+  return {x[-1][-10:]:get_name(x) for x in clist} 
