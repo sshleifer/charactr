@@ -14,18 +14,13 @@ CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
 FIG_PATH = ['fig1.png','fig2.png']
 
-def getTabs(cursor):
-  '''Assists database navigation.'''
-  cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-  return cursor.fetchall()
-
 ####Read in Chat
 def timefix(since, base): 
   return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(since + BASE))
 
 def byChat(msg):
   '''Group conversations by contact'''
-  gb = msg.groupby('chat_identifier')
+  gb = msg.groupby('cname')
   sums  = gb.agg(np.sum)
   means = gb.agg(np.mean)
   slen = gb[['is_sent', 'msg_len']].agg(lambda x: np.sum(x['is_sent']* x['msg_len']))
@@ -38,6 +33,14 @@ def byChat(msg):
   full['lenrec'] = full.totlen - full.lensent
   full['num_rec'] = full.size - full.num_snt
   return full
+def getName(cid, clist):
+  if cid.startswith('chat'):  return cid
+  elif cid in clist.keys():  return clist[cid]
+  elif cid[-10:] in clist.keys():
+    return clist[cid[-10:]]
+  elif len(cid) >= 11 and cid[-11:] in clist.keys():
+    return clist[cid[-11:]]
+  return cid
 
 def writeChat():
   '''Writes message number,type. text, other person and date to msg.csv'''
@@ -50,14 +53,16 @@ def writeChat():
     return msg
 
   db = sqlite3.connect(CHAT_DB)
-  msg = pd.read_sql("SELECT * from message", db)
+  msg_raw = pd.read_sql("SELECT * from message", db)
   chat = pd.read_sql("SELECT * from chat", db)
   cmj =  pd.read_sql("SELECT * from chat_message_join", db)
-
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
-  msg_final = pd.merge(msg, full_chat,left_on='ROWID', right_on='message_id')
-  keep = ['ROWID_x','text','date','chat_identifier','is_sent']
-  return clean(msg_final[keep])
+  msg = pd.merge(msg_raw, full_chat,left_on='ROWID', right_on='message_id')
+  msg['chat_id'] = msg.chat_identifier.map(lambda x: x.replace('+1','')) 
+  CLIST = addresses()
+  msg['cname'] = msg.chat_id.map(lambda x: getName(x, CLIST)) 
+  keep = ['ROWID_x','text','date','chat_id','is_sent', 'cname']
+  return clean(msg[keep])
 
 def main():
   msg = writeChat()

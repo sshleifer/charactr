@@ -36,7 +36,7 @@
  <div id="viz"></div>
     <script type="text/javascript">
 
-      var margin = {top: 20, right: 20, bottom: 30, left: 60},
+      var margin = {top: 20, right: 20, bottom: 30, left: 40},
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom;
 
@@ -60,7 +60,7 @@
           yAxis = d3.svg.axis().scale(yScale).orient("left");
 
       // setup fill color
-      var cValue = function(d) { return d.chat_identifier;},
+      var cValue = function(d) { return d.cname;},
           color = d3.scale.category20();
 
       // add the graph canvas to the body of the webpage
@@ -125,7 +125,7 @@
                 tooltip.transition()
                      .duration(200)
                      .style("opacity", .9);
-                tooltip.html(d.chat_identifier + "<br/> (Sent:" + xValue(d) 
+                tooltip.html(d.cname + "<br/> (Sent:" + xValue(d) 
                 + ", Received:" + yValue(d) + ")")
                      .style("left", (d3.event.pageX + 5) + "px")
                      .style("top", (d3.event.pageY - 28) + "px");

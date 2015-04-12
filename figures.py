@@ -23,6 +23,6 @@ def fig2(ppl, fname):
   '''For each contact, plot number of characters sent and received.'''
   sns.lmplot("lensent", "lenrec",ppl) 
   plt.xlabel('Characters Sent')
-  plt.ylabel('Characters Received.')
+  plt.ylabel('Characters Received')
   sns.despine()
   savefig(fname)
