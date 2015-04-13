@@ -50,7 +50,8 @@ def mapName(cid, clist, gen):
 
 def firstn(n):
   '''To generate shorter numbers for chats. A temporary hack.'''
-  for i in range(n): yield i
+  for i in range(n):
+    yield i
 
 def writeChat():
   '''Writes message number,type. text, other person and date to msg.csv'''
@@ -79,12 +80,13 @@ def writeChat():
 def main():
   msg = writeChat()
   ppl = byChat(msg)
-  print 'Writing', len(msg), 'texts to msg.csv and ppl.csv'
+  print '\n'
+  print 'Writing', len(msg), 'texts to msg.csv and ppl.csv.'
   msg.to_csv('msg.csv',encoding='utf-8')
   ppl.to_csv('ppl.csv', encoding='utf-8')
 
   fig1(msg, FIG_PATH[0])
-  print 'Created Histogram at', FIG_PATH[0], '.'
+  print 'Created Histogram at', FIG_PATH[0] + '.'
   print 'Open index.html in Safari to see Figure 2.'
 
 if __name__ == '__main__':
