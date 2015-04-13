@@ -27,11 +27,11 @@ def byChat(msg):
   full = pd.DataFrame() 
   full['num'] = gb.size()
   full['msent'] = means['is_sent']
+  full['num_snt']= sums['is_sent']
   full['lensent'] = slen['is_sent']
   full['totlen'] = sums['msg_len']
-  full['num_snt']= sums['is_sent']
   full['lenrec'] = full.totlen - full.lensent
-  full['num_rec'] = full.size - full.num_snt
+  full['num_rec'] = full.num - full.num_snt
   return full
 
 def mapName(cid, clist, gen):
