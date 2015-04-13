@@ -6,7 +6,7 @@ import fnmatch
 
 PATH = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
 def possDB():
-  '''Experimental attempt at finding all .abcddb files in file system.'''z
+  '''Experimental attempt at finding all .abcddb files in file system.'''
   matches = []
   for root, dirnames, filenames in os.walk('~/Library'):
     for filename in fnmatch.filter(filenames, '*.abcddb'):
@@ -46,8 +46,8 @@ def addresses():
     else:
       return {}
   
-  def get_name(row):
+  def parseName(row):
     return row[0] if row[0] == row[1] else ' '.join(row[0:2])
     
   clist = [x.replace('+1','').split() for x in contact_list]
-  return {x[-1][-10:]:get_name(x) for x in clist} 
+  return {x[-1][-10:]:parseName(x) for x in clist} 

@@ -7,7 +7,6 @@ import numpy as np
 import os
 import pandas as pd
 import re
-import sqlite3
 import time
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
@@ -32,14 +31,21 @@ def byChat(msg):
   full['lenrec'] = full.totlen - full.lensent
   full['num_rec'] = full.size - full.num_snt
   return full
-def getName(cid, clist):
-  if cid.startswith('chat'):  return cid
-  elif cid in clist.keys():  return clist[cid]
+
+def mapName(cid, clist, gen):
+  #if cid.startswith('chat'):  return "chat" + str(gen.next())
+  if cid in clist.keys():  return clist[cid]
   elif cid[-10:] in clist.keys():
     return clist[cid[-10:]]
   elif len(cid) >= 11 and cid[-11:] in clist.keys():
     return clist[cid[-11:]]
-  return cid
+  else: return cid
+
+def firstn(n):
+  '''To generate shorter numbers for chats. A temporary hack.'''
+  num = 0
+  for i in range(n):
+    yield i
 
 def writeChat():
   '''Writes message number,type. text, other person and date to msg.csv'''
@@ -59,7 +65,9 @@ def writeChat():
   msg = pd.merge(msg_raw, full_chat,left_on='ROWID', right_on='message_id')
   msg['chat_id'] = msg.chat_identifier.map(lambda x: x.replace('+1','')) 
   CLIST = addresses()
-  msg['cname'] = msg.chat_id.map(lambda x: getName(x, CLIST)) 
+  gen = firstn(len(msg))
+  msg['cname'] = msg.chat_id.map(lambda x: mapName(x, CLIST, gen)) 
+  #msg['cname'] = chatNums(list(msg.cname))
   keep = ['ROWID_x','text','date','chat_id','is_sent', 'cname']
   return clean(msg[keep])
 
