@@ -16,14 +16,36 @@ def possDB():
 def getTabs(cursor):
   '''Assists database navigation.'''
   cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-  return cursor.fetchall()
+  return [x[0] for x in cursor.fetchall()]
 
-def getData(path):
-  '''returns a series of <firstname> <lastname> <phonenumber> <phonenumber> strings.'''
+def newData(ad_db):
+  '''Get Contact Data from PHONENUMBER, RECORD Tables. As in icloud_query.py'''
+  jn = pd.read_sql("""SELECT ZFULLNUMBER, ZSORTINGFIRSTNAME FROM ZABCDPHONENUMBER
+              LEFT OUTER JOIN ZABCDRECORD
+              ON ZABCDPHONENUMBER.ZOWNER = ZABCDRECORD.Z_PK""", ad_db)
+  cstart = zip(jn.ZFULLNUMBER, jn.ZSORTINGFIRSTNAME)
+  clist = {x[0]: x[1][:len(x[1])/2] for x in cstart} 
+  # TODO(SS) Clean x[0] (the phone number)
+  return clist
+
+def allData(cursor):
+  for table in getTabs(cursor):
+    cursor.execute("SELECT * FROM " + table)
+    k = cursor.fetchall()
+    print table, ': (10 rows)'
+    print '**************'
+    try:
+      print k[:10]
+    except IndexError:
+      print k
+
+def getContactData(path):
+  '''returns a series of <firstname> <lastname> <phonenumber> <phonenumber> strings.
+  FROM ZSTRING FOR INDEXING'''
   ADDRESS_DB = os.path.expanduser(path)
   ad_db = sqlite3.connect(ADDRESS_DB)
-  ad_curs = ad_db.cursor()
-  adtabs = getTabs(ad_curs)
+  ad_curs = ad_db.cursor()  #For Debugging
+  adtabs = getTabs(ad_curs) #For Debugging
   query = "SELECT ZSTRINGFORINDEXING FROM ZABCDCONTACTINDEX"
   try:
     contact_list = pd.read_sql(query, ad_db)
@@ -34,7 +56,7 @@ def getData(path):
 
 def addresses():
   '''create the {number: name} dictionary.'''
-  contact_list = getData(PATH)
+  contact_list = getContactData(PATH)
   srcs = os.path.expanduser("~/Library/Application Support/AddressBook/Sources")
   cl2 = []
   if os.path.exists(srcs):
@@ -42,7 +64,7 @@ def addresses():
     BACKUP = os.path.expanduser(os.path.join("~/Library/Application Support",
       "AddressBook/Sources", SRC,
       "AddressBook-v22.abcddb"))
-    cl2 = getData(BACKUP)
+    cl2 = getContactData(BACKUP)
   
   contact_list += cl2 
 
