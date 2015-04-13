@@ -1,6 +1,8 @@
 # Reads in some tables from chat.db and joins.
 # Sam Shleifer, Peter Dewire
 # April 8, 2015.
+
+from subprocess import call
 from contacts import *
 from figures import fig1, fig2
 import numpy as np
@@ -8,6 +10,12 @@ import os
 import pandas as pd
 import re
 import time
+
+try:
+    call(["./install"])
+except OSError:
+    print "requirements installation error"
+
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
 FIG_PATH = ['fig1.png','fig2.png']
