@@ -43,8 +43,14 @@ def addresses():
       "AddressBook-v22.abcddb"))
     cl2 = getData(BACKUP)
   contact_list += cl2 
+
   def parseName(row):
-    return row[0] if row[0] == row[1] else ' '.join(row[0:2])
-    
+    if len(row) == 1: 
+      return row[0]
+    try:
+      return row[0] if row[0] == row[1] else ' '.join(row[0] + row[1])
+    except:
+      return ''
+
   clist = [x.replace('+1','').split() for x in contact_list]
   return {x[-1][-10:]:parseName(x) for x in clist} 
