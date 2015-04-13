@@ -10,11 +10,6 @@ import pandas as pd
 import re
 import time
 
-try:
-    call(["./install.sh"])
-except OSError as oe:
-    print "requirements installation error", oe
-    
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
 FIG_PATH = ['fig1.png','fig2.png']
