@@ -20,7 +20,7 @@ def fig1(msg, fname):
   savefig(fname)
   
 def fig2(ppl, fname):
-  '''For each contact, plot number of characters sent and received.'''
+  '''For each contact, plot number of characters sent and received. (UNUSED)'''
   sns.lmplot("lensent", "lenrec",ppl) 
   plt.xlabel('Characters Sent')
   plt.ylabel('Characters Received')

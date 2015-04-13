@@ -3,14 +3,15 @@ Calculate statistics from backup data stored by iMessage for OS X.
 
 The data is stored by the iMessage app at ~/Library/Messages/chat.db.
 
-###Instructions:
-
-- clone this repo
-- python chat_to_csv.py
-- Data will be in msg.csv
+###Instructions (from terminal):
+- $git clone **this repo**
+- $cd imsg_stats
+- $pip install -r requirements.txt
+- $python chat_to_csv.py
+- Data will be in msg.csv and ppl.csv
 - Static Plots will be in fig1.png and fig2.png
-- To see, hoverable D3 plot: open imsg_stats/index.html in Firefox or Safari.
-
+- To see hoverable D3 plot: open imsg_stats/index.html in Firefox or Safari
+  ($open -a Safari).
 
 ###TODO
 

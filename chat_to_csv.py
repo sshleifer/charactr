@@ -1,7 +1,6 @@
 # Reads in some tables from chat.db and joins.
 # Sam Shleifer, Peter Dewire
 # April 8, 2015.
-
 from subprocess import call
 from contacts import *
 from figures import fig1, fig2
@@ -12,7 +11,7 @@ import re
 import time
 
 try:
-    call(["./install"])
+    call(["./install.sh"])
 except OSError:
     print "requirements installation error"
 
@@ -85,8 +84,8 @@ def main():
   ppl.to_csv('ppl.csv', encoding='utf-8')
 
   fig1(msg, FIG_PATH[0])
-  fig2(ppl, FIG_PATH[1])
-  print 'Creating two charts to', FIG_PATH[0], 'and', FIG_PATH[1], '.' 
+  print 'Created Histogram at', FIG_PATH[0], '.'
+  print 'Open index.html in Safari to see Figure 2.'
 
 if __name__ == '__main__':
   main()
