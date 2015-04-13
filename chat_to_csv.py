@@ -51,9 +51,7 @@ def mapName(cid, clist, gen):
 
 def firstn(n):
   '''To generate shorter numbers for chats. A temporary hack.'''
-  num = 0
-  for i in range(n):
-    yield i
+  for i in range(n): yield i
 
 def writeChat():
   '''Writes message number,type. text, other person and date to msg.csv'''

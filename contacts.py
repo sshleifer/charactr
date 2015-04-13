@@ -35,17 +35,14 @@ def getData(path):
 def addresses():
   '''create the {number: name} dictionary.'''
   contact_list = getData(PATH)
-  if len(contact_list) == 0:
-    srcs = os.path.expanduser("~/Library/Application Support/AddressBook/Sources")
-    if os.path.exists(srcs):
-      SRC = os.listdir(srcs)[0]
-      BACKUP = os.path.expanduser(os.path.join("~/Library/Application Support",
-        "AddressBook/Sources", SRC,
-        "AddressBook-v22.abcddb"))
-      contact_list = getData(BACKUP)
-    else:
-      return {}
-  
+  srcs = os.path.expanduser("~/Library/Application Support/AddressBook/Sources")
+  if os.path.exists(srcs):
+    SRC = os.listdir(srcs)[0]
+    BACKUP = os.path.expanduser(os.path.join("~/Library/Application Support",
+      "AddressBook/Sources", SRC,
+      "AddressBook-v22.abcddb"))
+    cl2 = getData(BACKUP)
+  contact_list += cl2 
   def parseName(row):
     return row[0] if row[0] == row[1] else ' '.join(row[0:2])
     
