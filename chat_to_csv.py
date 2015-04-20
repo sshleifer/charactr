@@ -1,13 +1,13 @@
-# Reads in some tables from chat.db and joins.
-# Sam Shleifer, Peter Dewire
-# April 8, 2015.
+''' Reads in some tables from chat.db, joins and cleans them,
+and then calls contacts.py to label phone numbers with contact names.
+By Sam Shleifer, Peter Dewire since April 8, 2015.'''
 from subprocess import call
-from contacts import *
-from figures import fig1, fig2
+from contacts import addresses
+from figures import fig1
 import numpy as np
 import os
 import pandas as pd
-import re
+import sqlite3
 from sys import argv
 import time
 
@@ -87,11 +87,9 @@ def writeChat():
 def main():
   msg = writeChat()
   ppl = byContact(msg)
-  print '\n'
-  print 'Writing', len(msg), 'texts to msg.csv and ppl.csv.'
+  print 'Writing %d texts from %d different contacts to msg.csv and ppl.csv'%(len(msg),len(ppl))
   msg.to_csv('msg.csv',encoding='utf-8')
   ppl.to_csv('ppl.csv', encoding='utf-8')
-
   fig1(msg, 'fig1.png')
   print 'Created Histogram at fig1.png.'
   print 'Opening index.html in Safari to see Figure 2.'

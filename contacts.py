@@ -1,9 +1,8 @@
-import numpy as np
+'''Reads in addresses from DB stored at path, or backup, 
+to label phone numbers.'''
 import os
 import pandas as pd
-import re
 import sqlite3
-import fnmatch
 
 PATH = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
 
