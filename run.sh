@@ -6,6 +6,6 @@ then
   echo "If problems, try $ pip install -r requirements.txt"
 fi
 export installed="done"
-python chat_to_csv.py -h
-open index.html -a Safari
+python chat_to_csv.py -hidegroups
 open fig1.png
+open index.html -a Safari
