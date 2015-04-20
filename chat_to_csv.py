@@ -8,17 +8,17 @@ import numpy as np
 import os
 import pandas as pd
 import re
+from sys import argv
 import time
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
-FIG_PATH = ['fig1.png','fig2.png']
 
 ####Read in Chat
 def timefix(since, base): 
   return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(since + BASE))
 
-def byChat(msg):
+def byContact(msg):
   '''Group conversations by contact'''
   gb = msg.groupby('cname')
   sums  = gb.agg(np.sum)
@@ -35,8 +35,10 @@ def byChat(msg):
   return full
 
 def mapName(cid, clist, gen):
-  #if cid.startswith('chat'):  return "chat" + str(gen.next())
-  if cid in clist.keys():  return clist[cid]
+  #TODO Why do these following 2 lines cause group* not to appear in viz?
+  if len(argv) > 1 and cid.startswith('chat'):  
+    return "group" + str(gen.next())
+  elif cid in clist.keys():  return clist[cid]
   elif cid[-10:] in clist.keys():
     return clist[cid[-10:]]
   elif len(cid) >= 11 and cid[-11:] in clist.keys():
@@ -59,11 +61,21 @@ def writeChat():
     return msg
 
   db = sqlite3.connect(CHAT_DB)
+  #SQLITE joins are slower than pandas joins on my machine
+  #TODO: Time following code on other machines
+  #msg = pd.read_sql('''SELECT * from message as msg 
+  #    LEFT OUTER JOIN CHAT_MESSAGE_JOIN as cmj
+  #    on msg.ROWID = cmj.message_id 
+  #    LEFT OUTER JOIN CHAT as ch
+  #    on cmj.chat_id = ch.ROWID;
+  #    ''', db)
+
   msg_raw = pd.read_sql("SELECT * from message", db)
   chat = pd.read_sql("SELECT * from chat", db)
   cmj =  pd.read_sql("SELECT * from chat_message_join", db)
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
-  msg = pd.merge(msg_raw, full_chat,left_on='ROWID', right_on='message_id')
+  msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
+  
   msg['chat_id'] = msg.chat_identifier.map(lambda x: x.replace('+1','')) 
   CLIST = addresses()
   gen = firstn(len(msg))
@@ -74,15 +86,16 @@ def writeChat():
 
 def main():
   msg = writeChat()
-  ppl = byChat(msg)
+  ppl = byContact(msg)
   print '\n'
   print 'Writing', len(msg), 'texts to msg.csv and ppl.csv.'
   msg.to_csv('msg.csv',encoding='utf-8')
   ppl.to_csv('ppl.csv', encoding='utf-8')
 
-  fig1(msg, FIG_PATH[0])
-  print 'Created Histogram at', FIG_PATH[0] + '.'
-  print 'Open index.html in Safari to see Figure 2.'
+  fig1(msg, 'fig1.png')
+  print 'Created Histogram at fig1.png.'
+  print 'Opening index.html in Safari to see Figure 2.'
+  return msg
 
 if __name__ == '__main__':
   main()
