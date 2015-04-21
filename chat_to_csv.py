@@ -16,6 +16,8 @@ BASE = 978307200
 
 def byContact(msg):
   '''Group conversations by contact, and calculate summary stats'''
+  if len(argv) > 1: # -hidegroups change
+    msg = msg[msg.cname.str.startswith('chat') != True]
   gb= msg.groupby('cname')
   sums, means  = gb.agg(np.sum), gb.agg(np.mean)
   chars_sent = lambda x: np.sum(x['is_sent']*x['msg_len'])
@@ -27,17 +29,6 @@ def byContact(msg):
   full['lenrec'] = full.totlen - full.lensent
   full['nrec'] = full.num - full.nsent
   return full
-
-
-def mapName(cid, clist):
-  '''Lookup a phone number, or a near match in a {number: name} dict.'''
-  #TODO Why do these following 2 lines cause group* not to appear in viz?
-  if cid in clist.keys():  
-    return clist[cid]
-  elif len(argv) > 1 and cid.startswith('chat'): # -hidegroups
-    return ''
-  else:
-    return cid
 
 def clean(old):
     '''Cleans DF columns'''
@@ -57,20 +48,26 @@ def writeChat():
   msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
 
   msg['chat_id'] = msg.chat_identifier.map(lambda x: x.replace('+1','')) 
-  CLIST = addresses()
-  msg['cname'] = msg.chat_id.map(lambda x: mapName(x, CLIST)) 
+  clist = addresses()
+  name = lambda cid: clist[cid] if cid in clist.keys() else cid
+  msg['cname'] = msg.chat_id.map(name) 
   keep = ['ROWID_x','text','date','chat_id','is_sent', 'cname']
   return clean(msg[keep])
 
 def main():
   if len(argv) > 2:
     print "USAGE: python chat_to_csv.py [-hidegroups]"
+  elif len(argv) == 1:
+    print '''Warning: Group chats will be labeled as chat followed by a long
+    number.'''
   msg = writeChat()
   ppl = byContact(msg)
   names = msg.cname.unique()
   glen = len(filter(lambda x: x and x.startswith('chat'), names))
+  ilen = len(filter(lambda x: x and not x.startswith('chat'), names))
+  
   print 'Writing %d texts with %d individuals and %d groups to msg.csv and ppl.csv'%(len(msg),
-      len(ppl) - glen, glen)
+      ilen, glen)
   #Write to Files
   msg.to_csv('msg.csv',encoding='utf-8')
   ppl.to_csv('ppl.csv', encoding='utf-8')
