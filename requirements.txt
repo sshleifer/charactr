@@ -1,6 +1,5 @@
 numpy
 scipy
-openssl
 matplotlib
 seaborn
 pandas
