@@ -2,7 +2,7 @@
 and then calls contacts.py to label phone numbers with contact names.
 Developed by Sam Shleifer, Peter Dewire since April 8, 2015.'''
 from contacts import addresses
-from figures import fig1
+#from figures import fig1
 import numpy as np
 import os
 import pandas as pd
@@ -67,11 +67,12 @@ def main(hidegroups=False):
   
   print 'Writing %d texts with %d individuals and %d groups to msg.csv and ppl.csv'%(len(msg),
       ilen, glen)
+  #Add interesting print statements
   #Write to Files
   msg.to_csv('msg.csv',encoding='utf-8')
   ppl.to_csv('ppl.csv', encoding='utf-8')
-  fig1(msg, 'fig1.png')
-  print 'Opening Histogram (fig1.png) and Scatterplot (in Safari).'
+  #fig1(msg, 'fig1.png')
+  print 'Opening scatter plot in Safari.'
   return msg
 
 if __name__ == '__main__':

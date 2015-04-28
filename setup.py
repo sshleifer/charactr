@@ -8,7 +8,7 @@ Usage:
 from setuptools import setup
 
 APP = ['imsg_stats.py']
-DATA_FILES = ['contacts.py', 'chat_to_csv.py', 'figures.py']
+DATA_FILES = ['contacts.py', 'chat_to_csv.py']
 OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
 
 setup(
