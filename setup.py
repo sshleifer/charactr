@@ -7,9 +7,9 @@ Usage:
 
 from setuptools import setup
 
-APP = ['chat_to_csv.py']
-DATA_FILES = ['contacts.py', 'index.html', 'run.sh']
-OPTIONS = {'argv_emulation': True}
+APP = ['imsg_stats.py']
+DATA_FILES = ['contacts.py', 'chat_to_csv.py', 'figures.py']
+OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
 
 setup(
     app=APP,
