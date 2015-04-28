@@ -1,6 +1,6 @@
-''' Reads in some tables from chat.db, joins and cleans them,
-and then calls contacts.py to label phone numbers with contact names.
-Developed by Sam Shleifer, Peter Dewire since April 8, 2015.'''
+###  Reads in some tables from chat.db, joins and cleans them,
+###  and then calls contacts.py to label phone numbers with contact names.
+###  By Sam Shleifer, Peter Dewire since April 8, 2015.
 from contacts import addresses
 #from figures import fig1
 import numpy as np
