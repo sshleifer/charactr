@@ -8,10 +8,15 @@ Usage:
 from setuptools import setup
 
 APP = ['imsg_stats.py']
-DATA_FILES = ['contacts.py', 'chat_to_csv.py']
-OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
+DATA_FILES = ['index.html']
+#OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
+OPTIONS = {'argv_emulation': True}
 
 setup(
+    name='charactr',
+    py_modules=['contacts','chat_to_csv','imsg_stats'],
+    version='0.0',
+    description='Statistics from your imsg data',
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},

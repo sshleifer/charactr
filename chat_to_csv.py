@@ -57,23 +57,24 @@ def main(hidegroups=False):
   if argv and len(argv) > 2:
     print "USAGE: python chat_to_csv.py [-hidegroups]"
   elif argv and len(argv) == 1:
-    print '''Warning: Group chats will be labeled as chat followed by a long
-    number.'''
+    print '''Warning: Group chats will be labeled as chat followed by a long number.'''
+  print "being executed at", os.path.abspath('.')
+  
   msg = writeChat()
   ppl = byContact(msg, hidegroups)
   names = msg.cname.unique()
   glen = len(filter(lambda x: x and x.startswith('chat'), names))
   ilen = len(filter(lambda x: x and not x.startswith('chat'), names))
   
-  print 'Writing %d texts with %d individuals and %d groups to msg.csv and ppl.csv'%(len(msg),
-      ilen, glen)
+  print '''Writing %d texts with %d individuals and %d groups to msg.csv and
+  ppl.csv in %s''' %(len(msg), ilen, glen, os.path.abspath('.'))
+  
   #Add interesting print statements
   #Write to Files
   msg.to_csv('msg.csv',encoding='utf-8')
   ppl.to_csv('ppl.csv', encoding='utf-8')
   #fig1(msg, 'fig1.png')
-  print 'Opening scatter plot in Safari.'
-  return msg
+  #return msg
 
 if __name__ == '__main__':
   main()
