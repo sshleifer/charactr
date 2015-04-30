@@ -3,34 +3,40 @@ to label phone numbers.'''
 import os
 import pandas as pd
 import sqlite3
+import sys
 
-PATH = "~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"
+PATH = os.path.expanduser("~/Library/Application Support/AddressBook/AddressBook-v22.abcddb")
+SRCS = os.path.expanduser("~/Library/Application Support/AddressBook/Sources")
 
 def extractContacts(path):
   '''Get Contact Data from PHONENUMBER, RECORD Tables. As in icloud_query.py'''
-  ADDRESS_DB = os.path.expanduser(path)
-  ad_db = sqlite3.connect(ADDRESS_DB)
-  jn = pd.read_sql("""SELECT ZFULLNUMBER, ZSORTINGFIRSTNAME FROM ZABCDPHONENUMBER
+  try:
+    ad_db = sqlite3.connect(os.path.expanduser(path))
+  except:
+    print "INVALID PATH"
+    return {}
+  try:
+    jn = pd.read_sql("""SELECT ZFULLNUMBER, ZSORTINGFIRSTNAME FROM ZABCDPHONENUMBER
               LEFT OUTER JOIN ZABCDRECORD
               ON ZABCDPHONENUMBER.ZOWNER = ZABCDRECORD.Z_PK""", ad_db)
-  clean =  lambda x: ''.join(c for c in x if '0' <= c <= '9')[-10:]
-  cstart = zip(map(clean, jn.ZFULLNUMBER), jn.ZSORTINGFIRSTNAME)
-  clist = {x[0]: x[1][:len(x[1])/2] for x in cstart} 
-  return clist
+    clean =  lambda x: ''.join(c for c in x if '0' <= c <= '9')[-10:]
+    cstart = zip(map(clean, jn.ZFULLNUMBER), jn.ZSORTINGFIRSTNAME)
+    clist = {x[0]: x[1][:len(x[1])/2] for x in cstart} 
+    return clist
+  except pd.io.sql.DatabaseError as e:
+    print e, "failed on:", path
+    return {}
 
 def addresses():
   '''create the {number: name} dictionary from contacts app, or phone backup.'''
   contact_list = extractContacts(PATH)
-  srcs = os.path.expanduser("~/Library/Application Support/AddressBook/Sources")
-  if os.path.exists(srcs):
-    cl2 = {}
-    SRC = os.listdir(srcs)[0]
-    BACKUP = os.path.expanduser(os.path.join("~/Library/Application Support",
-      "AddressBook/Sources", SRC,
-      "AddressBook-v22.abcddb"))
-    cl2 = extractContacts(BACKUP)
-    contact_list.update(cl2)
+  if os.path.exists(SRCS):
+    BACKUPS = [os.path.expanduser(os.path.join("~/Library/Application Support",
+      "AddressBook/Sources", source,
+      "AddressBook-v22.abcddb")) for source in os.listdir(SRCS)]
+    for bu in BACKUPS: 
+      contact_list.update(extractContacts(bu))
+    if not contact_list:
+      print "Contacts: checked %s and %s" % (PATH, " ".join(BACKUPS))
+      print "NO CONTACTS FOUND"
   return contact_list
-  #contact_list += cl2 
-  #clist = [x.replace('+1','').split() for x in contact_list]
-  #return {x[-1][-10:]:parseName(x) for x in clist} 
