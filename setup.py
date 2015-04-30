@@ -8,7 +8,7 @@ Usage:
 from setuptools import setup
 
 APP = ['imsg_stats.py']
-DATA_FILES = ['index.html']
+DATA_FILES = ['index.html', 'scatter1.js']
 #OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
 OPTIONS = {'argv_emulation': True}
 
