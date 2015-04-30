@@ -4,7 +4,6 @@ import webbrowser as wb
 
 main(hidegroups=True)
 print "Serving scatterplot at localhost:8000"
-wb.open("http://localhost:8001")
-call("python -m SimpleHTTPServer 8001",shell=True)
-#call("open -a safari index.html", shell=True)
+wb.open("http://localhost:8000")
+call("python -m SimpleHTTPServer 8000",shell=True)
 

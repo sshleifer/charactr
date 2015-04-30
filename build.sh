@@ -1,4 +1,4 @@
 #!/bin/bash
-rm -rf build.sh
+rm -rf build dist
 python setup.py py2app
-zip -r dist/charactr.zip dist/charactr.app
+zip versions/charactrv0.2.zip dist/charactr.app 
