@@ -40,12 +40,17 @@ def clean(old):
     return msg
 
 #@profile
-def writeChat():
-  '''Writes message number,type. text, other person and date to msg.csv'''
+def read_db():
+  '''Reads text data from chat.db to a dataframe'''
   db = sqlite3.connect(CHAT_DB)
   msg_raw = pd.read_sql("SELECT * from message", db)
   chat = pd.read_sql("SELECT * from chat", db)
   cmj =  pd.read_sql("SELECT * from chat_message_join", db)
+  return msg_raw, chat, cmj
+
+def writeChat():
+  '''Writes message number,type. text, other person and date to msg, a df'''
+  msg_raw,chat,cmj = read_db()
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
   msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
 
