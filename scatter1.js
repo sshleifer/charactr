@@ -1,6 +1,12 @@
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
+var margin = {top: 20, right: 200, bottom: 30, left: 50},
+    width = parseInt(d3.select("#chart").style('width'), 10),
+    width = width - margin.left - margin.right,
+    winheight = parseInt(d3.select("#chart").style('height'), 10),
     height = 500 - margin.top - margin.bottom;
+
+    //percent = d3.format('%');
+
+var exp = .4;
 
 /* 
  * value accessor - returns the value to encode for a given data object.
@@ -11,31 +17,39 @@ var margin = {top: 20, right: 20, bottom: 30, left: 50},
 
 // setup x 
 var xValue = function(d) { return d.lensent;}, // data -> value
-    xScale = d3.scale.linear().range([0, width]), // value -> display
+    xScale = d3.scale.pow().exponent(exp).range([0, width]), // value -> display
     xMap = function(d) { return xScale(xValue(d));}, // data -> display
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
+var startValue = function(d){return d.start;};
+var endValue = function(d){return d.end;};
+
 // setup y
 var yValue = function(d) { return d.lenrec;}, // data -> value
-    yScale = d3.scale.linear().range([height, 0]), // value -> display
+    yScale = d3.scale.pow().exponent(exp).range([height, 0]), // value -> display
     yMap = function(d) { return yScale(yValue(d));}, // data -> display
     yAxis = d3.svg.axis().scale(yScale).orient("left");
 
 // setup fill color
 var cValue = function(d) { return d.cname;},
-    color = d3.scale.category20();
+    color = "blue";
 
 // add the graph canvas to the body of the webpage
 var svg = d3.select("body").append("svg")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
-.append("g")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 // add the tooltip area to the webpage
 var tooltip = d3.select("body").append("div")
-.attr("class", "tooltip")
-.style("opacity", 0);
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
+var tool2 = d3.select("body").append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
 
 // load data
 d3.csv("ppl.csv", function(error, data) {
@@ -43,14 +57,13 @@ d3.csv("ppl.csv", function(error, data) {
   data.forEach(function(d) {
     d.lensent = +d.lensent;
     d.lenrec = +d.lenrec;
-    //console.log(d);
+    console.log(d);
   });
 
   // don't want dots overlapping axis, so add in buffer to data domain
   xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
   yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
-
-  // x-axis
+   // x-axis
   svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
@@ -60,7 +73,7 @@ d3.csv("ppl.csv", function(error, data) {
     .attr("x", width)
     .attr("y", -6)
     .style("text-anchor", "end")
-    .text("Characters Sent");
+    .text("Characters Sent (Scale is exponential)");
 
   // y-axis
   svg.append("g")
@@ -79,26 +92,61 @@ d3.csv("ppl.csv", function(error, data) {
     .data(data)
     .enter().append("circle")
     .attr("class", "dot")
-    .attr("r", 5)
+    .attr("r", 3)
     .attr("cx", xMap)
     .attr("cy", yMap)
-    .style("fill", function(d) { return color(cValue(d));}) 
+    .style("opacity",.7)
+    //.style("fill", function(d) { return color(cValue(d));}) 
+    .style("fill", "rgb(0,105,225)") 
     .on("mouseover", function(d) {
       tooltip.transition()
         .duration(200)
-        .style("opacity", .9);
-      tooltip.html(d.cname + "<br/> (Sent:" + xValue(d) 
-        + ", Received:" + yValue(d) + ")")
+        .style("opacity", 1);
+      tooltip.html("<b><u>" + d.cname +"</u>" +
+        "<br/> sent: " + xValue(d) +
+        "<br/> received: " + yValue(d) + 
+        "<br/> total: " + (xValue(d) + yValue(d)) +
+        "<br/> first: " + startValue(d) + 
+        "<br/> last: " + endValue(d) + "</b>")
         .style("left", (d3.event.pageX + 5) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
+        .style("top", (d3.event.pageY - 10) + "px");
+      tool2.transition()
+        .duration(200)
+        .style("opacity", 1);
+      tool2.html("<b><u>" + d.cname +"</u>" +
+        "<br/> sent: " + xValue(d) +
+        "<br/> received: " + yValue(d) + 
+        "<br/> total: " + (xValue(d) + yValue(d)) +
+        "<br/> first: " + startValue(d) + 
+        "<br/> last: " + endValue(d) + "</b>")
+        .style("left", (margin.left + width/2) + "px")
+        .style("top", (500) + "px")
+        .style("width", 500);
+  //.style("background-color", "white"); 
+
     })
-  .on("mouseout", function(d) {
+  /*.on("mouseout", function(d) {
     tooltip.transition()
       .duration(500)
       .style("opacity", 0);
-  });
+  });*/
 
-  //draw legend
+
+  
+function resize() {
+    console.log("Resizing from width", width)
+    width =  parseInt(d3.select("#chart").style('width'), 10)
+    width = width - margin.left - margin.right,
+    xScale = d3.scale.pow().range([0, width]),
+    xMap = function(d) { return xScale(xValue(d));}, // data -> display
+    xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+}
+ 
+d3.select(window).on('resize', resize); 
+
+
+//draw legend
+
   /*
      var legend = svg.selectAll(".legend")
      .data(color.domain())

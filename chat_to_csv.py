@@ -14,13 +14,14 @@ CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
 
 #@profile
-def byContact(msg, hidegroups):
+def byContact(old, hidegroups):
   '''Group conversations by contact, and calculate summary stats'''
+  msg = old.copy()
   if len(argv) > 1 or hidegroups: # -hidegroups change
     msg = msg[msg.cname.str.startswith('chat') != True]
-  msg['snt_chars'] = msg.is_sent * msg.msg_len
+  msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
   gb= msg.groupby('cname')
-  sums, means  = gb.agg(np.sum), gb.agg(np.mean)
+  sums, means  = gb.agg(np.sum), gb.agg(np.mean) 
   full = pd.DataFrame({'num':gb.size()})
   full['nsent'] = sums.is_sent
   full['msent'] = means.is_sent
@@ -28,6 +29,8 @@ def byContact(msg, hidegroups):
   full['totlen'] =  sums.msg_len
   full['lenrec'] = full.totlen - full.lensent
   full['nrec'] = full.num - full.nsent
+  full['start'] =  gb.date.agg(np.min)
+  full['end'] =  gb.date.agg(np.max)
   return full
 
 #@profile
