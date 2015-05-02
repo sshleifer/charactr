@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# accepts msg dataframe (return val of chat_to_csv.writeChat())
+# returns dataframe of texts by time
 def timeDf(msg):
     msg["hour"] = msg.date.apply(lambda x : int(x[-8:-6]))
     msg_groups = msg.groupby("hour")
