@@ -11,15 +11,15 @@ def timeDf(msg):
 
     ######################## time of day #########################
 
-    msg["hour"] = msg.date.apply(lambda x : int(x[-8:-6]))
-    msg_groups = msg.groupby("hour")
+    msg['hour'] = msg.date.apply(lambda x : int(x[-8:-6]))
+    msg_groups = msg.groupby('hour')
 
     tot = msg_groups.is_sent.size()
     # first column automatically named 0 for some reason
     time_df = pd.DataFrame(tot)
     time_df = time_df.rename(columns={0 : 'tot'})
-    time_df["snt"] = msg_groups.is_sent.agg(sum)
-    time_df["rec"] = time_df.tot - time_df.snt
+    time_df['snt'] = msg_groups.is_sent.agg(sum)
+    time_df['rec'] = time_df.tot - time_df.snt
 
     # time_df.plot()
     # plt.show()
