@@ -13,7 +13,7 @@ xMap = (d) ->  #data value to display value
 xAxis = d3.svg.axis().scale(xScale).orient('bottom')
 
 yValue = (d) ->
-  d.of_total
+  d.lenrec
 yScale = d3.scale.pow().exponent(exp).range([height,0]).nice()
 yMap = (d) ->
   yScale(yValue(d))
@@ -112,7 +112,7 @@ d3.csv('ppl.csv', (error, data) ->
       columns.map (column) ->
         {column: column, value:row[column]}
     ).enter().append("td").html( (d) ->
-      d.value)
+      d.value) #could round here, but cname
 
     return table
 
@@ -121,7 +121,6 @@ d3.csv('ppl.csv', (error, data) ->
 )
         ##NEEDS TO BE SENT DATA SOMEHOW
 addXax = (height, width)->
-
   d3.select('svg').select("g").selectAll(".xaxis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis)

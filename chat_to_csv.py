@@ -14,13 +14,10 @@ CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
 
 #@profile
-def byContact(old, hidegroups):
+def byContact(msg):
   '''Group conversations by contact, and calculate summary stats'''
-  msg = old.copy()
-  if len(argv) > 1 or hidegroups: # -hidegroups change
-    msg = msg[msg.cname.str.startswith('chat') != True]
   msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
-  gb= msg.groupby('cname')
+  gb = msg.groupby('cname')
   sums, means  = gb.agg(np.sum), gb.agg(np.mean) 
   full = pd.DataFrame({'num':gb.size()})
   full['nsent'] = sums.is_sent
@@ -72,11 +69,11 @@ def writeChat():
 
 #@profile
 def main(hidegroups=False):
-  if argv and len(argv) > 2:
-    print "USAGE: python chat_to_csv.py [-hidegroups]"
   print "being executed at", os.path.abspath('.')
   msg = writeChat() #Read in, clean a dataframe of all messages
-  ppl = byContact(msg, hidegroups) #Collect metadata foreach contact
+  if len(argv) > 1 or hidegroups: 
+    msg = msg[msg.cname.str.startswith('chat') != True]
+  ppl = byContact(msg.copy()) #Collect metadata foreach contact
 
   ###Statistics for print statement
   names = msg.cname.unique()
@@ -88,8 +85,8 @@ def main(hidegroups=False):
   ppl.to_csv('ppl.csv', encoding='utf-8')
   #fig1(msg, 'fig1.png')
 
-  print '''Writing %d texts with %d individuals and %d groups to msg.csv and
-  ppl.csv in %s''' %(len(msg), ilen, glen, os.path.abspath('.'))
+  print '''Writing %d texts with %d individuals and %d groups since %s to msg.csv and
+  ppl.csv in %s''' %(len(msg),ilen, glen,msg.date.min(), os.path.abspath('.'))
   #return msg for interactive use
 
 if __name__ == '__main__':

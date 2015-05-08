@@ -34,7 +34,7 @@
   xAxis = d3.svg.axis().scale(xScale).orient('bottom');
 
   yValue = function(d) {
-    return d.of_total;
+    return d.lenrec;
   };
 
   yScale = d3.scale.pow().exponent(exp).range([height, 0]).nice();
