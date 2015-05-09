@@ -2,16 +2,13 @@
 A standalone desktop app that allows Mac/iMessage users to visualize their
 texting history.
 
-##Quick Install (for noobs):
-1. Click one of the .zip files above, and download it by clicking the 'Raw'
-   Button. 
-(Later versions will be slightly cooler, and slightly less likely to work)
-2. Unzip the file.
-3. Right click and open on the charactr application.
-4. This should open localhost:8000 in your browser, with the scatterplot
+##Quick Install:
+1. Download charactr at http://pjdewire.github.io/charactr_site/
+2. Right click and open on the charactr application.
+3. This should open localhost:8000 in your browser, with the scatterplot
    showing. (if you have a previous version, you may need to refresh)
-5. Hover over dots to see the contacts and their stats.
-6. When you are bored, force quit charactr.
+4. Hover over dots to see the contacts and their stats.
+5. When you are bored, force quit charactr.
 
 If something breaks, take a screenshot of your Mac's console, and post it as an
 Issue.
