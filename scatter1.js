@@ -1,11 +1,9 @@
 var margin = {top: 20, right: 200, bottom: 30, left: 50},
     width = parseInt(d3.select("#chart").style('width'), 10),
     width = width - margin.left - margin.right,
-    winheight = parseInt(d3.select("#chart").style('height'), 10),
-    height = 500 - margin.top - margin.bottom;
-
+    height = 500 - margin.top - margin.bottom,
+    winheight = parseInt(d3.select("#chart").style('height'), 10);
     //percent = d3.format('%');
-
 var exp = .4;
 
 /* 
@@ -21,14 +19,15 @@ var xValue = function(d) { return d.lensent;}, // data -> value
     xMap = function(d) { return xScale(xValue(d));}, // data -> display
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
-var startValue = function(d){return d.start;};
-var endValue = function(d){return d.end;};
 
 // setup y
 var yValue = function(d) { return d.lenrec;}, // data -> value
     yScale = d3.scale.pow().exponent(exp).range([height, 0]), // value -> display
     yMap = function(d) { return yScale(yValue(d));}, // data -> display
     yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+var startValue = function(d){return d.start;};
+var endValue = function(d){return d.end;};
 
 // setup fill color
 var cValue = function(d) { return d.cname;},
@@ -44,7 +43,7 @@ var svg = d3.select("body").append("svg")
 // add the tooltip area to the webpage
 var tooltip = d3.select("body").append("div")
   .attr("class", "tooltip")
-  .style("opacity", 0);
+  .style("opacity", 0); //Do i need this line?
 
 var tool2 = d3.select("body").append("div")
   .attr("class", "tooltip")
@@ -54,8 +53,9 @@ var tool2 = d3.select("body").append("div")
 // load data
 d3.csv("ppl.csv", function(error, data) {
   // change string (from CSV) into number format
+  k = data
   data.forEach(function(d) {
-    d.lensent = +d.lensent;
+    d.lensent = +d.lensent; //string to number?
     d.lenrec = +d.lenrec;
     console.log(d);
   });
@@ -120,8 +120,7 @@ d3.csv("ppl.csv", function(error, data) {
         "<br/> first: " + startValue(d) + 
         "<br/> last: " + endValue(d) + "</b>")
         .style("left", (margin.left + width/2) + "px")
-        .style("top", (500) + "px")
-        .style("width", 500);
+        .style("top", (500) + "px");
   //.style("background-color", "white"); 
 
     })
@@ -142,32 +141,12 @@ function resize() {
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 }
  
-d3.select(window).on('resize', resize); 
+//d3.select(window).on('resize', resize); 
 
 
 //draw legend
 
   /*
-     var legend = svg.selectAll(".legend")
-     .data(color.domain())
-     .enter().append("g")
-     .attr("class", "legend")
-     .attr("transform", function(d, i) { return "translate(0," + i * 10 + ")"; });
-
-  // draw legend colored rectangles
-  legend.append("rect")
-  .attr("x", width - 18)
-  .attr("width", 18)
-  .attr("height", 18)
-  .style("fill", color);
-
-  // draw legend text
-  legend.append("text")
-  .attr("x", width - 24)
-  .attr("y", 9)
-  .attr("dy", ".35em")
-  .style("text-anchor", "end")
-  .text(function(d) { return d;})
   */
 }); 
 

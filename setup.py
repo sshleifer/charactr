@@ -8,7 +8,7 @@ Usage:
 from setuptools import setup
 
 APP = ['imsg_stats.py']
-DATA_FILES = ['index.html', 'scatter1.js']
+DATA_FILES = ['index.html', 'scatter_new.js']
 #OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
 OPTIONS = {'argv_emulation': True}
 
@@ -16,7 +16,7 @@ setup(
     name='charactr',
     py_modules=['contacts','chat_to_csv','imsg_stats'],
     version='0.0',
-    description='Statistics from your imsg data',
+    description='Visualizing your iMessage data',
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},

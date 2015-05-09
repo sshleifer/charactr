@@ -36,7 +36,7 @@ d3.csv('ppl.csv', (error, data) ->
     d.lensent = +d.lensent
     d.lenrec = +d.lenrec
     d.totlen = +d.totlen
-    d.pct_sent = d.lensent/d.totlen
+    d.pct_sent = d.lensent / d.totlen
     sum = sum + d.totlen
     return
   data.forEach (d) ->
@@ -92,14 +92,14 @@ d3.csv('ppl.csv', (error, data) ->
         '<br/> last: ' + d.end + '</b>')
           .style('opacity':0,'left': margin.left + width / 2 + 'px', 'top': 500 + 'px')
       return
-  console.log('new'+ width)
-
-  console.log('center'+center)
+  console.log('new'+ width + '' + 'center' + center)
+  pretty = d3.format("p")
+  
+  
   tabulate = (d1, columns) ->
     data = d1.sort( (a,b) ->
-      b.totlen - a.totlen).slice(0,10)
-    
-    table = d3.select("body").append("table").style("margin-left": center+"px")
+      b.totlen - a.totlen).slice(0,15)
+    table = d3.select("body").append("table").style("margin-left": center+ "px")
     thead = table.append("thead")
     tbody = table.append("tbody")
     thead.append("tr").selectAll("th")
@@ -107,13 +107,17 @@ d3.csv('ppl.csv', (error, data) ->
         column
     
     rows = tbody.selectAll("tr").data(data).enter().append("tr")
-
     cells = rows.selectAll('td').data((row) ->
       columns.map (column) ->
         {column: column, value:row[column]}
     ).enter().append("td").html( (d) ->
-      d.value) #could round here, but cname
-
+      if typeof(d.value) == 'string'
+        return d.value.trim()
+      else if d.value < 1
+        return d3.round(100*d.value,2) + "%"
+      else
+        return d.value
+    )
     return table
 
   peopleTable = tabulate(data, ["cname", "pct_sent", "totlen", "of_total"])

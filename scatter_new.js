@@ -65,7 +65,7 @@
   });
 
   d3.csv('ppl.csv', function(error, data) {
-    var peopleTable, sum, tabulate;
+    var peopleTable, pretty, sum, tabulate;
     sum = 0;
     data.forEach(function(d) {
       d.lensent = +d.lensent;
@@ -118,13 +118,13 @@
         'top': 500 + 'px'
       });
     });
-    console.log('new' + width);
-    console.log('center' + center);
+    console.log('new' + width + '' + 'center' + center);
+    pretty = d3.format("p");
     tabulate = function(d1, columns) {
       var cells, rows, table, tbody, thead;
       data = d1.sort(function(a, b) {
         return b.totlen - a.totlen;
-      }).slice(0, 10);
+      }).slice(0, 15);
       table = d3.select("body").append("table").style({
         "margin-left": center + "px"
       });
@@ -142,7 +142,13 @@
           };
         });
       }).enter().append("td").html(function(d) {
-        return d.value;
+        if (typeof d.value === 'string') {
+          return d.value.trim();
+        } else if (d.value < 1) {
+          return d3.round(100 * d.value, 2) + "%";
+        } else {
+          return d.value;
+        }
       });
       return table;
     };
