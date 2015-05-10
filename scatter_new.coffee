@@ -1,8 +1,6 @@
-margin ={top: 20, right: 300, bottom: 50, left: 50}
+margin ={top: 20, right: 500, bottom: 50, left: 50}
 width = parseInt(d3.select('body').style('width'), 10) - margin.left - margin.right
 height = 500 - margin.top - margin.bottom
-winheight = d3.select('body').style('height') #Doesnt work
-console.log(winheight)
 exp = .4
 center = (width - margin.right)/2 + margin.left
 xValue = (d) ->  #value accessor
@@ -19,6 +17,15 @@ yMap = (d) ->
   yScale(yValue(d))
 yAxis = d3.svg.axis().scale(yScale).orient('left')
 
+String.prototype.startsWith =  (str) ->
+  return this.indexOf(str) == 0
+
+dispatch = d3.dispatch("load", "statechange")
+
+div = d3.select("body").append("div")
+  .attr("class", "table")
+  .style("opacity", 0)
+
 # add the graph canvas to the body of the webpage
 svg = d3.select('body').append('svg')
   .attr('width': width + margin.left + margin.right,
@@ -27,10 +34,39 @@ svg = d3.select('body').append('svg')
   .attr('transform': 'translate(' + margin.left + ',' + margin.top + ')')
 
 tooltip = d3.select('body').append('div').attr('class': 'tooltip')
-tool2 = d3.select('body').append('div').attr('class':'tooltip')
-  .style('opacity': 0,'border': 'solid', 'height': '90px')
+#tool2 = d3.select('body').append('div').attr('class':'tooltip').style('opacity': 0,'border': 'solid', 'height': '90px')
 
-d3.csv('ppl.csv', (error, data) ->
+ 
+tabulate = (d1, columns) ->
+  data = d1.sort( (a,b) ->
+    b.totlen - a.totlen).slice(0,15)
+  table = d3.select("body").append("table")
+    .attr('transform': 'translate(' + 0 + ',' + margin.top + ')')
+
+  thead = table.append("thead")
+  tbody = table.append("tbody")
+  thead.append("tr").selectAll("th")
+    .data(columns).enter().append("th").text (column) ->
+      column
+  
+  rows = tbody.selectAll("tr").data(data).enter().append("tr")
+  cells = rows.selectAll('td').data((row) ->
+    columns.map (column) ->
+      {column: column, value:row[column]}
+  ).enter().append("td").html( (d) ->
+    if typeof(d.value) == 'string'
+      return d.value.trim()
+    else if d.value < 1
+      return d3.round(100*d.value,2) + "%"
+    else
+      return d.value
+  )
+  return table
+
+
+d3.csv('ppl.csv', ((error, data) ->
+  #if error throw error
+  byName = d3.map()
   sum = 0
   data.forEach (d) ->
     d.lensent = +d.lensent
@@ -38,12 +74,21 @@ d3.csv('ppl.csv', (error, data) ->
     d.totlen = +d.totlen
     d.pct_sent = d.lensent / d.totlen
     sum = sum + d.totlen
-    return
+    d.cname = d.cname.trim()
+    byName.set(d.cname.trim(), d)
+  
   data.forEach (d) ->
     d.of_total = d.totlen/sum
-    return
-  
+    
   console.log('TotChars',sum)
+  dispatch.load(data)
+  #dispatch.statechange("erica leh", data)
+
+  peopleTable = tabulate(data, ["cname", "pct_sent", "totlen", "of_total",])
+
+  )
+)
+dispatch.on("load.scatter", (data) ->
   # don't want dots overlapping axis, so add in buffer to data domain
   xScale.domain [d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]
   yScale.domain [d3.min(data, yValue) - 1, d3.max(data, yValue) + 1]
@@ -64,7 +109,6 @@ d3.csv('ppl.csv', (error, data) ->
     .attr('text-anchor':'end')
     .text('Characters Sent (Scale is exponential)')
 
-
   svg.append('g')
     .attr('class': 'yaxis').call(yAxis).append('text')
     .attr('class': 'lab2','transform': 'rotate(-90)','y': 6,'dy': '.71em')
@@ -73,8 +117,8 @@ d3.csv('ppl.csv', (error, data) ->
   # draw dots
   svg.selectAll('.dot')
     .data(data).enter().append('circle')
-   .attr('class': 'dot','r': 3,'cx': xMap,'cy':yMap)
-   .style('opacity': .7,'fill': 'rgb(0,105,225)')
+    .attr('id': ((d) -> return d.cname), 'class': 'dot','r': 3,'cx': xMap,'cy':yMap)
+    .style('opacity': .7,'fill': 'rgb(0,105,225)')
     .on 'mouseover', (d) ->
       tooltip.html('<b><u>' + d.cname + '</u>' +
         '<br/> sent: ' + d.lensent +
@@ -82,74 +126,89 @@ d3.csv('ppl.csv', (error, data) ->
         '<br/> total: ' + d.totlen +
         '<br/> first: ' + d.start +
         '<br/> last: ' + d.end + '</b>')
-          .style('opacity':1,'left': d3.event.pageX + 5 + 'px','top': d3.event.pageY - 10 + 'px')
-      #tool2.transition().duration(0)
-      tool2.html('<b><u>' + d.cname + '</u>' +
-        '<br/> sent: ' + d.lensent +
-        '<br/> received: ' + d.lenrec +
-        '<br/> total: ' + d.totlen +
-        '<br/> first: ' + d.start +
-        '<br/> last: ' + d.end + '</b>')
-          .style('opacity':0,'left': margin.left + width / 2 + 'px', 'top': 500 + 'px')
-      return
-  console.log('new'+ width + '' + 'center' + center)
-  pretty = d3.format("p")
-  
-  
-  tabulate = (d1, columns) ->
-    data = d1.sort( (a,b) ->
-      b.totlen - a.totlen).slice(0,15)
-    table = d3.select("body").append("table").style("margin-left": center+ "px")
-    thead = table.append("thead")
-    tbody = table.append("tbody")
-    thead.append("tr").selectAll("th")
-      .data(columns).enter().append("th").text (column) ->
-        column
+          .style('opacity':1,'left': d3.event.pageX+5+'px','top': d3.event.pageY - 10 + 'px')
+ 
+  dispatch.on("statechange.scatter", (selectValue, data) ->
+    console.log('selecting', selectValue)
+    console.log('take 2:', d3.select('select').property('value'))
+    d3.select('body').append('p').text(selectValue + ' is the last selected option.')
+    k = svg.selectAll(".dot")
+    k.filter((data) ->
+      return data.cname == selectValue).style("fill":"red").attr('r':10)
     
-    rows = tbody.selectAll("tr").data(data).enter().append("tr")
-    cells = rows.selectAll('td').data((row) ->
-      columns.map (column) ->
-        {column: column, value:row[column]}
-    ).enter().append("td").html( (d) ->
-      if typeof(d.value) == 'string'
-        return d.value.trim()
-      else if d.value < 1
-        return d3.round(100*d.value,2) + "%"
-      else
-        return d.value
-    )
-    return table
-
-  peopleTable = tabulate(data, ["cname", "pct_sent", "totlen", "of_total"])
-  return
+    console.log('tried to select', '#' + selectValue)
+  )
 )
-        ##NEEDS TO BE SENT DATA SOMEHOW
+
+dispatch.on("load.menu", (data) ->
+  select = d3.select('body')
+    .append('div')
+    .append('select')
+      .attr('class':'select', 'color': "red")
+
+         
+  select.selectAll('option')
+    .data(data).enter().append('option')
+    .attr("value": (d) -> d.cname)
+    .text( (d) ->
+      return d.cname)
+  console.log('select.value', d3.select('select').property('value'))
+  select.on('change',() -> dispatch.statechange(this.value, data))
+  console.log('with this', this.value)
+)
+
+'''select.on('change' ,(d) -> #needs to be sent data
+      selectValue = d3.select('select').property('value')
+      console.log('selected', selectValue)
+      d3.select('body').append('p').text(selectValue + ' is the last selected option.')
+      console.log('now to dots')
+      k = svg.selectAll(".dot")
+      console.log(k)
+      k.filter ((d) ->
+        return d.cname.startsWith(selectValue.slice(0,4))).style('fill':'red')
+      console.log('tried to select', '#' + selectValue)
+      return
+      )'''
+ 
+#svg.selectAll(".dot")
+#   .filter( (d) ->  return d.cname.startsWith('erica'))
+#   .style("fill", "red")
+  
+# return
+
+
+
 addXax = (height, width)->
-  d3.select('svg').select("g").selectAll(".xaxis")
+  xScale = d3.scale.pow().exponent(exp).range([0, width]).nice()
+  xAxis = d3.svg.axis().scale(xScale).orient('bottom')
+
+  d3.select('svg').select("g").select(".xaxis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis)
-    .selectAll("text")
-    .style("text-anchor", "end")
-    .attr("dx", "-.8em")
-    .attr("dy", ".15em")
-    .attr("transform","rotate(-65)")
+    #.selectAll(".tick")
 
   d3.select('svg').select("g").select('.xaxis').select('.lab1')
     .attr('x': width)
     .attr("dy", ".15em")
-    .attr('text-anchor':'end')
   return
 
 re2 = -> # Find the new window dimensions */
   console.log('2. Resizing from width'+ width)
   width = parseInt(d3.select("body").style("width"),10) - margin.left - margin.right
   console.log ('2a. Resizing from width'+ width)
-  height = parseInt(d3.select("body").style("height")) - margin.top - margin.bottom
+  #height = parseInt(d3.select("body").style("height")) - margin.top - margin.bottom
   console.log ('2a. Resizing to height: '+ height)
   addXax(height,width)
+  #d3.csv('ppl.csv',k)
   return
 
+#d3.csv('ppl.csv',k)
+#Resize broken
 #d3.select(window).on('resize',re2)
 
 console.log("all the points", xAxis.scale().ticks(xAxis.ticks()))
 console.log('height',d3.select('body').style('height')) #Doesnt work
+console.log('peter'.startsWith('p'))
+
+
+
