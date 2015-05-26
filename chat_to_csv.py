@@ -2,7 +2,6 @@
 ###  and then calls contacts.py to label phone numbers with contact names.
 ###  By Sam Shleifer, Peter Dewire since April 8, 2015.
 from contacts import addresses
-#from figures import fig1
 import numpy as np
 import os
 import pandas as pd
