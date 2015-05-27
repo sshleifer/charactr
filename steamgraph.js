@@ -31,9 +31,9 @@ var tooltip = d3.select("body")
     .append("div")
     .attr("class", "remove")
     .style("position", "absolute")
-    .style("z-index", "40")
+    .style("z-index", "100")
     .style("visibility", "hidden")
-    .style("top", "30px")
+    .style("top", "20px")
     .style("left", "80px");
 
 var x = d3.time.scale()
@@ -132,13 +132,13 @@ var graph = d3.csv(csvpath, function(data) {
 
       mousedate = datearray.indexOf(invertedx);
       pro = d.values[mousedate].value;
-      prodate = d.values[mousedate].date;
+      dstring = d.values[mousedate].date.toDateString();
       
       d3.select(this)
       .classed("hover", true)
       .attr("stroke", strokecolor)
       .attr("stroke-width", "0.5px"), 
-      tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" )
+      tooltip.html( "<p>" + d.key + "<br>" + pro + "<br>"+ dstring + "</p>" )
           .style("visibility", "visible");
       
     })
@@ -150,7 +150,7 @@ var graph = d3.csv(csvpath, function(data) {
       d3.select(this)
       .classed("hover", false)
       .attr("stroke-width", "0px"), tooltip.html( "<p>" + d.key + "<br>" + pro +
-          "<br>" + mousedate+  "</p>" )
+          "<br>" + dstring +  "</p>" )
       .style("visibility", "hidden");
   })
     
@@ -164,7 +164,8 @@ var graph = d3.csv(csvpath, function(data) {
         .style("top", "10px")
         .style("bottom", "30px")
         .style("left", "20px")
-        .style("background", "#fff");
+        .style("fill",'red')
+        .style("background", "red");
 
   d3.select(".chart")
       .on("mousemove", function(){  
