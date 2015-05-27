@@ -99,12 +99,13 @@ var graph = d3.csv(csvpath, function(data) {
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis);
-
+  //TODO(SS): why is yaxis scale broken?
   /*svg.append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + width + ", 0)")
       .call(yAxis.orient("right"));
-  svg.append("g")
+  
+    svg.append("g")
       .attr("class", "y axis")
       .call(yAxis.orient("left"));
   */
