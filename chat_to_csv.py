@@ -8,6 +8,7 @@ import pandas as pd
 import sqlite3
 from sys import argv
 import time
+from time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
@@ -55,7 +56,7 @@ def writeChat():
   
   def findName(cid):
     try:
-      return clist[cid]
+      return clist[cid].rstrip()
     except KeyError:
       return cid
 
@@ -63,23 +64,27 @@ def writeChat():
   keep = ['ROWID_x','text','date','chat_id','is_sent', 'cname']
   return clean(msg[keep])
 
-def main(hidegroups=False):
+def main(hidegroups=True):
   print "being executed at", os.path.abspath('.')
   msg = writeChat() #Read in, clean a dataframe of all messages
-  if len(argv) > 1 or hidegroups: 
+  if len(argv) <= 1 or hidegroups: 
     msg = msg[msg.cname.str.startswith('chat') != True]
-  ppl = byContact(msg.copy()) #Collect metadata foreach contact
+  ppl = byContact(msg.copy()) #Collect metadata for each contact
+  
+  besties = list(ppl.sort('totlen',ascending=False).index[:10])
+  ts = timePanel(msg, besties) 
+
+  # Write csvs
+  #msg.to_csv('msg.csv',encoding='utf-8')  # Removed for speed
+  ts.to_csv('ts.csv')
+  ppl.to_csv('ppl.csv', encoding='utf-8')
 
   ###Statistics for print statement
   names = msg.cname.unique()
   glen = len(filter(lambda x: x and x.startswith('chat'), names))
   ilen = len(filter(lambda x: x and not x.startswith('chat'), names))
- 
-  #msg.to_csv('msg.csv',encoding='utf-8')  # Removed for speed
   
-  ppl.to_csv('ppl.csv', encoding='utf-8')
-
-  print '''Writing %d texts with %d individuals and %d groups since %s to msg.csv and
+  print '''Writing %d texts with %d individuals and %d groups since %s to ts.csv and
   ppl.csv in %s''' %(len(msg),ilen, glen,msg.date.min(), os.path.abspath('.'))
   #return msg for interactive use
 
