@@ -12,7 +12,6 @@ import time
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
 
-#@profile
 def byContact(msg):
   '''Group conversations by contact, and calculate summary stats'''
   msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
@@ -29,16 +28,14 @@ def byContact(msg):
   full['end'] =  gb.date.agg(np.max)
   return full
 
-#@profile
 def clean(old):
-    '''Cleans DF columns'''
+    '''Cleans dataframe columns'''
     msg = old.copy()
     timefix = lambda x: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x + BASE))
     msg['date'] = msg.date.apply(timefix)
     msg['msg_len'] =  msg.text.apply(lambda x: len(x) if x else 0)
     return msg
 
-#@profile
 def read_db():
   '''Reads text data from chat.db to a dataframe'''
   db = sqlite3.connect(CHAT_DB)
@@ -66,7 +63,6 @@ def writeChat():
   keep = ['ROWID_x','text','date','chat_id','is_sent', 'cname']
   return clean(msg[keep])
 
-#@profile
 def main(hidegroups=False):
   print "being executed at", os.path.abspath('.')
   msg = writeChat() #Read in, clean a dataframe of all messages
@@ -79,10 +75,9 @@ def main(hidegroups=False):
   glen = len(filter(lambda x: x and x.startswith('chat'), names))
   ilen = len(filter(lambda x: x and not x.startswith('chat'), names))
  
-  # Write csvs
   #msg.to_csv('msg.csv',encoding='utf-8')  # Removed for speed
+  
   ppl.to_csv('ppl.csv', encoding='utf-8')
-  #fig1(msg, 'fig1.png')
 
   print '''Writing %d texts with %d individuals and %d groups since %s to msg.csv and
   ppl.csv in %s''' %(len(msg),ilen, glen,msg.date.min(), os.path.abspath('.'))
