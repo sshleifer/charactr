@@ -17,6 +17,7 @@ Issue.
 - $ git clone **this repo**
 - $ cd imsg_stats
 - $ python imsg_stats.py
+- To see steamgraph, $ open -a Safari steamgraph.html
 
 The data read from ~/Library/Messages/chat.db.
 Data will be written to imsg_stats/ppl.csv, feel free to play
