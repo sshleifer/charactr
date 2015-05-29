@@ -70,7 +70,7 @@ var area = d3.svg.area()
     .y0(function(d) { return y(d.y0); })
     .y1(function(d) { return y(d.y0 + d.y); });
 
-var svg = d3.select(".chart").append("svg")
+var svg = d3.select(".steam").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -157,7 +157,7 @@ var graph = d3.csv(csvpath, function(data) {
       .style("visibility", "hidden");
   })
     
-  var vertical = d3.select(".chart")
+  var vertical = d3.select(".steam")
         .append("div")
         .attr("class", "remove")
         .style("position", "absolute")
@@ -165,11 +165,11 @@ var graph = d3.csv(csvpath, function(data) {
         .style("width", "1px")
         .style("height", "380px")
         .style("top", "10px")
-        .style("bottom", "30px")
+        .style("bottom", "0px")
         .style("left", "20px")
         .style("background", "red");
 
-  d3.select(".chart")
+  d3.select(".steam")
       .on("mousemove", function(){  
          mousex = d3.mouse(this);
          mousex = mousex[0] + 5;
