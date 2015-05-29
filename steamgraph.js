@@ -5,7 +5,8 @@ chart("ts.csv", "blue");
 
 var datearray = [];
 var colorrange = [];
-
+var montharray = [];
+var dayarray = [];
 
 function chart(csvpath, color) {
 
@@ -55,8 +56,8 @@ var yAxis = d3.svg.axis().scale(y);
 var yAxisr = d3.svg.axis().scale(y);
 
 var stack = d3.layout.stack()
-    .offset("wiggle")  //could be wiggle
-    .values(function(d) { console.log(d); return d.values; })
+    .offset("silhouette")  //could be wiggle
+    .values(function(d) {return d.values; })
     .x(function(d) { return d.date; })
     .y(function(d) { return d.value; });
 
@@ -80,7 +81,6 @@ var graph = d3.csv(csvpath, function(data) {
     d.date = format.parse(d.date);
     d.value = +d.value;
   });
-  console.log(nest.entries(data))
 
   var layers = stack(nest.entries(data));
 
@@ -106,8 +106,7 @@ var graph = d3.csv(csvpath, function(data) {
       .call(yAxis.orient("right"));
   svg.append("g")
       .attr("class", "y axis")
-      .call(yAxis.orient("left"));
-  */
+      .call(yAxis.orient("left"));*/
 
   svg.selectAll(".layer")
     .attr("opacity", 1)
@@ -122,24 +121,27 @@ var graph = d3.csv(csvpath, function(data) {
       mousex = d3.mouse(this);
       mousex = mousex[0];
       var invertedx = x.invert(mousex);
-      invertedx = invertedx.getMonth() + invertedx.getDate();
-      //invertedx = invertedx.getMonth()
-      var selected = (d.values);
-      for (var k = 0; k < selected.length; k++) {
-        datearray[k] = selected[k].date
-        datearray[k] = datearray[k].getMonth() + datearray[k].getDate();
+      var month = invertedx.getMonth(); var day = invertedx.getDate();
+      var sel = (d.values); //all the person's data
+      var date_ix = 0;
+      var km, kd;
+      for (var k = 0; k < sel.length; k++) {
+        km = sel[k].date.getMonth()
+        kd = sel[k].date.getDate()
+        if (km ==month && kd == day){
+          date_ix = k;
+          break;
+        }
       }
-
-      mousedate = datearray.indexOf(invertedx);
-      pro = d.values[mousedate].value;
-      prodate = d.values[mousedate].date;
+      
+      pro = d.values[date_ix].value;
+      prodate = d.values[date_ix].date.toString().slice(0,15);
       
       d3.select(this)
       .classed("hover", true)
       .attr("stroke", strokecolor)
-      .attr("stroke-width", "0.5px"), 
-      tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" )
-          .style("visibility", "visible");
+      .attr("stroke-width", "0.5px"), tooltip.html( "<p>" + d.key + "<br>" + pro +
+          "<br>" + prodate+  "</p>" ).style("visibility", "visible");
       
     })
     .on("mouseout", function(d, i) {
@@ -150,7 +152,7 @@ var graph = d3.csv(csvpath, function(data) {
       d3.select(this)
       .classed("hover", false)
       .attr("stroke-width", "0px"), tooltip.html( "<p>" + d.key + "<br>" + pro +
-          "<br>" + mousedate+  "</p>" )
+          "<br>" + prodate+  "</p>" )
       .style("visibility", "hidden");
   })
     
@@ -164,7 +166,7 @@ var graph = d3.csv(csvpath, function(data) {
         .style("top", "10px")
         .style("bottom", "30px")
         .style("left", "20px")
-        .style("background", "#fff");
+        .style("background", "red");
 
   d3.select(".chart")
       .on("mousemove", function(){  
