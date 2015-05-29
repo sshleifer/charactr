@@ -2,6 +2,7 @@
 ###  and then calls contacts.py to label phone numbers with contact names.
 ###  By Sam Shleifer, Peter Dewire since April 8, 2015.
 from contacts import addresses
+import datetime as dt
 import numpy as np
 import os
 import pandas as pd
@@ -12,6 +13,11 @@ from time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
+
+def checkSavedData():
+  keep = ['ROWID_x','text','date','chat_id','is_sent','cname']
+  return pd.read_csv('msg.csv')[keep] if os.path.exists('msg.csv') else []
+    
 
 def byContact(msg):
   '''Group conversations by contact, and calculate summary stats'''
@@ -34,7 +40,7 @@ def clean(old):
     msg = old.copy()
     timefix = lambda x: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x + BASE))
     msg['date'] = msg.date.apply(timefix)
-    msg['msg_len'] =  msg.text.apply(lambda x: len(x) if x else 0)
+    msg['msg_len'] =  msg.text.fillna(0).apply(lambda x: len(x) if x else 0)
     return msg
 
 def read_db():
@@ -45,28 +51,38 @@ def read_db():
   cmj =  pd.read_sql("SELECT * from chat_message_join", db)
   return msg_raw, chat, cmj
 
-def writeChat():
+def writeChat(saved_data):
   '''Writes message number,type. text, other person and date to msg, a df'''
   msg_raw,chat,cmj = read_db()
+  #print msg_raw.head() 
+  print '1.', chat.columns
+  print '2.', cmj.columns
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
   msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
-
+  
   msg['chat_id'] = msg.chat_identifier.apply(lambda x: x.replace('+1','')) 
   clist = addresses()
-  
   def findName(cid):
     try:
       return clist[cid].rstrip()
     except KeyError:
-      return cid
+      return cid if isinstance(cid, str) else 0
 
   msg['cname'] = msg.chat_id.apply(findName) 
-  keep = ['ROWID_x','text','date','chat_id','is_sent', 'cname']
-  return clean(msg[keep])
+  keep = ['ROWID_x','text','date','chat_id','is_sent','cname']
+  msg = clean(msg[keep])
+  if len(saved_data) > 0:
+    #to support feature change after saving
+    if 'msg_len' not in saved_data.columns:
+      saved_data['msg_len'] =  saved_data.text.fillna(0).apply(lambda x: len(x) if x else 0)
+    cutoff = saved_data.date.max()
+    msg = pd.concat([saved_data, msg[msg.date > cutoff]])
+  return msg
 
 def main(hidegroups=True):
   print "being executed at", os.path.abspath('.')
-  msg = writeChat() #Read in, clean a dataframe of all messages
+  saved_data = checkSavedData()
+  msg = writeChat(saved_data) #Read in, clean a dataframe of all messages
   if len(argv) <= 1 or hidegroups: 
     msg = msg[msg.cname.str.startswith('chat') != True]
   ppl = byContact(msg.copy()) #Collect metadata for each contact
@@ -80,7 +96,8 @@ def main(hidegroups=True):
   ppl.to_csv('ppl.csv', encoding='utf-8')
 
   ###Statistics for print statement
-  names = msg.cname.unique()
+  names = msg.cname.fillna(0).unique()
+  print filter(lambda x: isinstance(x, float), names)
   glen = len(filter(lambda x: x and x.startswith('chat'), names))
   ilen = len(filter(lambda x: x and not x.startswith('chat'), names))
   
