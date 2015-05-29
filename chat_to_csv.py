@@ -54,9 +54,6 @@ def read_db():
 def writeChat(saved_data):
   '''Writes message number,type. text, other person and date to msg, a df'''
   msg_raw,chat,cmj = read_db()
-  #print msg_raw.head() 
-  print '1.', chat.columns
-  print '2.', cmj.columns
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
   msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
   
