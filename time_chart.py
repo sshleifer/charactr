@@ -1,9 +1,12 @@
 # Prepares a DF (that will be written to ts.csv).
 # In this DF, each line is a contact, the x axis is time,
 # and the y axis is characters exchanged
-
 import numpy as np
 import pandas as pd
+
+def filterDF(df, col, bool_func):
+  df['keep'] = df[col].apply(bool_func)
+  return df[df.keep].drop('keep', 1)
 
 def getSumStats(gb):
   '''Number of characters sent and received by each group.'''
@@ -19,8 +22,7 @@ def byHour(df, hidegroups=True):
   if hidegroups: 
     msg = msg[msg.cname.str.startswith('chat') != True]
   msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
-  msg['hour'] = msg.date.apply(lambda x : int(x[-8:-6])) 
-  # NOTE: I would not cast that string to an int (will get one digit sometimes) - SS
+  msg['hour'] = msg.tstamp.apply(lambda x : x.hour) 
   msg_groups = msg.groupby('hour')
   return getSumStats(msg_groups)
   
@@ -29,25 +31,21 @@ def byDate(df, hidegroups=True, byContact=False):
   msg = df.copy()
   if hidegroups: # -hidegroups change
     msg = msg[msg.cname.str.startswith('chat') != True]
-  msg['yr'] = msg.date.apply(lambda x : x[:4])
-  msg['mo'] = msg.date.apply(lambda x : x[5:7])
-  msg['ymd'] = msg.date.apply(lambda x: x[:10])
+  msg['ymd'] = msg.tstamp.apply(lambda x: x.date())
   msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
-  #groupers = ['yr','mo','cname'] if byContact else ['yr','mo']
   groupers = ['ymd','cname'] if byContact else ['ymd']
   date_grouped = msg.groupby(groupers)
   return getSumStats(date_grouped)
 
-def topN(ts, n=10):
+def topN(ts, n=4):
   '''NO LONGER BEING USED, BUT AN INTERESTING STRATEGY'''
   '''Finds the set of friends that have been in top N some month'''
-  k = ts.groupby('cname').msg_len.agg(np.sum)
-  return k
-  print k.head()
-  #ts['date'] = ts.yr.astype('str') + ts.mo.astype('str') + '01'
   keep = set() 
-  for m in ts.ymd.unique():
-    keep.update(ts[ts.date == m].sort('msg_len',ascending=False)[:10].cname)
+  ts['mo'] = ts.ymd.apply(lambda x: x.month)
+  months = list(ts.mo.unique())
+  for m in months:
+    new_names = ts[ts.mo == m].sort('msg_len',ascending=False)[:n].cname
+    keep.update(new_names)
   return list(keep) 
 
 def panelPivot(ts):
@@ -56,12 +54,18 @@ def panelPivot(ts):
   ret = ts[['ymd','cname','msg_len']].pivot(index='ymd',columns='cname', values='msg_len')
   return ret.fillna(0).reset_index()
 
-def timePanel(msg, besties):
+def timePanel(msg, besties=False, topn=10):
   '''Returns a DF documenting your texting with best n friends over time.'''
   ts =  byDate(msg, byContact=True)
-  ts['keep'] = ts.cname.apply(lambda x: x in besties)
-  wide = panelPivot(ts[ts.keep]).set_index('ymd')
+  if not besties:
+    besties = topN(ts, topn) 
+  
+  ts = filterDF(ts,  'cname', lambda x: x in besties)
+  #ts['keep'] = ts.cname.apply(lambda x: x in besties)
+  wide = panelPivot(ts).set_index('ymd')
   wide['ymd'] = wide.index 
   panel = pd.melt(wide, id_vars=['ymd'])
+  panel['ymd'] = panel['ymd'].apply(lambda x: str(x.date()))
+
   panel.columns = ['date','key','value'] # to play nice with js code
   return panel.set_index('key')

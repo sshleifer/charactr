@@ -67,7 +67,7 @@ def writeChat(saved_data=[]):
     try:
       return clist[cid].rstrip()
     except KeyError:
-      return cid if isinstance(cid, str) else 0
+      return cid
  
   msg['cname'] = msg.chat_id.apply(findName) 
   keep = ['ROWID_x','text','tstamp','chat_id','is_sent','cname','msg_len']
@@ -85,7 +85,7 @@ def main(hidegroups=True, save_data=False):
   
   besties = list(ppl.sort('totlen',ascending=False).index[:10])
   ts = timePanel(msg, besties) 
-
+  
   # Write csvs
   if save_data: msg.to_csv('msg.csv',encoding='utf-8')
   ts.to_csv('ts.csv')
@@ -96,7 +96,7 @@ def main(hidegroups=True, save_data=False):
   glen = len(filter(lambda x: x and x.startswith('chat'), names))
   print '''Writing %d texts with %d individuals and %d groups since %s to ts.csv and
     ppl.csv in %s''' %(len(msg),len(names) - glen, glen,msg.tstamp.min(), os.path.abspath('.'))
-  #return msg for interactive use
+  # return msg # for interactive use
 
 if __name__ == '__main__':
   main()
