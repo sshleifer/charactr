@@ -3,6 +3,7 @@
 ###  By Sam Shleifer, Peter Dewire since April 8, 2015.
 from contacts import addresses, groupbyContact
 import datetime as dt
+from helpers.utils import filterDF, msgLen
 import numpy as np
 import os
 import pandas as pd
@@ -13,13 +14,6 @@ from time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 BASE = 978307200
-
-def filterDF(df, col, bool_func):
-  df['keep'] = df[col].apply(bool_func)
-  return df[df.keep].drop('keep')
-
-def mlen(text): 
-  return len(text) if text else 0 
 
 def read_db():
   '''Reads text data from chat.db to a dataframe'''
@@ -41,7 +35,7 @@ def concat_with_saved(msg, saved_data):
   if len(saved_data) > 0:
     saved_data['tstamp'] = saved_data.tstamp.apply(str2date) 
     if 'msg_len' not in saved_data.columns:
-      saved_data['msg_len'] =  saved_data.text.fillna(0).apply(mlen)
+      saved_data['msg_len'] =  saved_data.text.fillna(0).apply(msgLen)
     cutoff = saved_data.tstamp.max()
     msg = pd.concat([saved_data, msg[msg.tstamp > cutoff]])
   return msg
@@ -51,7 +45,7 @@ def clean(old):
     msg = old.copy()
     date_cut = lambda x: dt.datetime.fromtimestamp(x + BASE)
     msg['tstamp'] = msg.date.apply(date_cut)
-    msg['msg_len'] =  msg.text.fillna(0).apply(mlen)
+    msg['msg_len'] =  msg.text.fillna(0).apply(msgLen)
     return msg
 
 def writeChat(saved_data=[]):
@@ -67,7 +61,7 @@ def writeChat(saved_data=[]):
     try:
       return clist[cid].rstrip()
     except KeyError:
-      return cid
+      return cid.rstrip()
  
   msg['cname'] = msg.chat_id.apply(findName) 
   keep = ['ROWID_x','text','tstamp','chat_id','is_sent','cname','msg_len']
@@ -75,15 +69,16 @@ def writeChat(saved_data=[]):
   return concat_with_saved(msg, saved_data)[keep]
 
 
-def main(hidegroups=True, save_data=False):
+def main(hidegroups=True, save_data=False, use_saved=False):
   print "being executed at", os.path.abspath('.')
-  saved_data = checkSavedData()
+  saved_data = checkSavedData() if use_saved else []
   msg = writeChat(saved_data) #Read in, clean a dataframe of all messages
   if len(argv) <= 1 or hidegroups: 
     msg = msg[msg.cname.str.startswith('chat') != True]
-  ppl = groupbyContact(msg.copy()) #Collect metadata for each contact
-  
-  besties = list(ppl.sort('totlen',ascending=False).index[:10])
+  ppl = groupbyContact(msg.copy()).sort('totlen', ascending=False) 
+  print ppl.head()
+  besties = map(lambda x: x.rstrip(),ppl.index[:10])
+  print besties
   ts = timePanel(msg, besties) 
   
   # Write csvs

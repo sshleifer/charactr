@@ -3,10 +3,7 @@
 # and the y axis is characters exchanged
 import numpy as np
 import pandas as pd
-
-def filterDF(df, col, bool_func):
-  df['keep'] = df[col].apply(bool_func)
-  return df[df.keep].drop('keep', 1)
+from helpers.utils import filterDF
 
 def getSumStats(gb):
   '''Number of characters sent and received by each group.'''

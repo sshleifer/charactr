@@ -57,4 +57,3 @@ def groupbyContact(msg):
   ppl['start'] =  gb.tstamp.agg(np.min)
   ppl['end'] =  gb.tstamp.agg(np.max)
   return ppl
-
