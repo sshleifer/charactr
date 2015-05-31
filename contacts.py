@@ -2,6 +2,7 @@
 to label phone numbers.'''
 import os
 import pandas as pd
+import numpy as np
 import sqlite3
 import sys
 
@@ -40,3 +41,19 @@ def addresses():
       print "Contacts: checked %s and %s" % (PATH, " ".join(BACKUPS))
       print "NO CONTACTS FOUND"
   return contact_list
+
+def groupbyContact(msg):
+  '''Group conversations by contact, and calculate summary stats'''
+  msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
+  gb = msg.groupby('cname')
+  sums, means  = gb.agg(np.sum), gb.agg(np.mean) 
+  ppl = pd.DataFrame({'num':gb.size()})
+  ppl['nsent'] = sums.is_sent
+  ppl['msent'] = means.is_sent
+  ppl['lensent'] = sums.snt_chars
+  ppl['totlen'] =  sums.msg_len
+  ppl['lenrec'] = ppl.totlen - ppl.lensent
+  ppl['nrec'] = ppl.num - ppl.nsent
+  ppl['start'] =  gb.tstamp.agg(np.min)
+  ppl['end'] =  gb.tstamp.agg(np.max)
+  return ppl

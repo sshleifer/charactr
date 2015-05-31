@@ -23,6 +23,11 @@ The data read from ~/Library/Messages/chat.db.
 Data will be written to imsg_stats/ppl.csv, feel free to play
 with it, send pull requests. If you add msg.to_csv('msg.csv') to the bottom of chat_to_csv.py, every text will be sent to a csv. If something breaks, take a screenshot of your Mac's console, and post it as an Issue.
 
+##Saving Your Data
+- $ git clone **this repo**
+- $ python save_data.py
+- $ data will be written to msg.csv
+
 ##Future Plans
 
 - Support Group Chats
