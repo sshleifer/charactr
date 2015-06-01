@@ -45,6 +45,7 @@ def addresses():
 def groupbyContact(msg):
   '''Group conversations by contact, and calculate summary stats'''
   msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
+  msg['date'] = msg.tstamp.apply(lambda x: x.date())
   gb = msg.groupby('cname')
   sums, means  = gb.agg(np.sum), gb.agg(np.mean) 
   ppl = pd.DataFrame({'num':gb.size()})
@@ -54,6 +55,6 @@ def groupbyContact(msg):
   ppl['totlen'] =  sums.msg_len
   ppl['lenrec'] = ppl.totlen - ppl.lensent
   ppl['nrec'] = ppl.num - ppl.nsent
-  ppl['start'] =  gb.tstamp.agg(np.min)
-  ppl['end'] =  gb.tstamp.agg(np.max)
+  ppl['start'] =  gb.date.agg(np.min)
+  ppl['end'] =  gb.date.agg(np.max)
   return ppl

@@ -3,6 +3,20 @@ ends up being called once we find the right table. -SS'''
 import fnmatch
 import pandas as pd
 import sqlite3
+###Random Debugging Tools
+def find_unis(df):
+  unis = {}
+  for col in df.columns:
+    try:
+      unis[col] = len(df[col].unique())
+    except TypeError:
+      continue
+  return unis
+
+def tbl_to_df(tab_name, con):
+  query = "SELECT * from " + tab_name
+  df = pd.read_sql(query, con)
+  return df
 
 def getTabs(cursor):
   '''Assists database navigation.'''
