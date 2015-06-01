@@ -9,9 +9,13 @@ var montharray = [];
 var dayarray = [];
 
 function chart(csvpath, color) {
-
 if (color == "blue") {
   colorrange = ["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
+}
+if (color == "mix") {
+  colorrange = ["#045A8D","#980043",  "#2B8CBE", "#DD1C77", "#74A9CF", "#DF65B0",  
+"#A6BDDB", "#C994C7",  "#D0D1E6", "#D4B9DA",  "#F1EEF6","#F1EEF6"]  
+  
 }
 else if (color == "pink") {
   colorrange = ["#980043", "#DD1C77", "#DF65B0", "#C994C7", "#D4B9DA", "#F1EEF6"];
@@ -21,8 +25,8 @@ else if (color == "orange") {
 }
 strokecolor = colorrange[0];
 
+
 var format = d3.time.format("%Y-%m-%d");
-//var format = d3.time.format("%Y%m%d");
 
 var margin = {top: 20, right: 50, bottom: 70, left: 50};
 var width = document.body.clientWidth - margin.left - margin.right;
@@ -45,6 +49,8 @@ var y = d3.scale.linear()
 
 var z = d3.scale.ordinal()
     .range(colorrange);
+
+var d3col = d3.scale.ordinal().range(colorrange);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -92,7 +98,7 @@ var graph = d3.csv(csvpath, function(data) {
     .enter().append("path")
       .attr("class", "layer")
       .attr("d", function(d) { return area(d.values); })
-      .style("fill", function(d, i) { return z(i); });
+      .style("fill", function(d, i) { return d3col(i); });
 
 
   svg.append("g")
@@ -120,7 +126,7 @@ var graph = d3.csv(csvpath, function(data) {
       svg.selectAll(".layer").transition()
       .duration(250)
       .attr("opacity", function(d, j) {
-        return j != i ? 0.5 : 1;
+        return j != i ? 0 : 1;
     })})
 
     .on("mousemove", function(d, i) {
@@ -166,11 +172,11 @@ var graph = d3.csv(csvpath, function(data) {
   var vertical = d3.select(".steam")
         .append("div")
         .attr("class", "remove")
-        .style("position", "absolute")
+        .style("position", "fixed")
         .style("z-index", "19")
         .style("width", "1px")
         .style("height", "380px")
-        .style("top", "10px")
+        .style("top", "100px")
         .style("bottom", "0px")
         .style("left", "20px")
         .style("background", "red");

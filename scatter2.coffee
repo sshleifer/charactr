@@ -1,5 +1,5 @@
 margin ={top: 20, right: 100, bottom: 50, left: 50}
-tabwidth = 250
+tabwidth = 230
 width = parseInt(d3.select('body').style('width'), 10) - margin.left - margin.right - tabwidth
 height = 500 - margin.top - margin.bottom
 exp = .4

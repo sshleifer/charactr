@@ -4,6 +4,7 @@
 import numpy as np
 import pandas as pd
 from helpers.utils import filterDF
+from types import *
 
 def getSumStats(gb):
   '''Number of characters sent and received by each group.'''
@@ -45,24 +46,28 @@ def topN(ts, n=4):
     keep.update(new_names)
   return list(keep) 
 
-def panelPivot(ts):
-  '''Flips the dataframe to long format to fill in zeroes during quiet months'''
-  #TODO(SS): eliminate this. Its a stupid hack.
-  ret = ts[['ymd','cname','msg_len']].pivot(index='ymd',columns='cname', values='msg_len')
-  return ret.fillna(0).reset_index()
 
 def timePanel(msg, besties=False, topn=10):
   '''Returns a DF documenting your texting with best n friends over time.'''
   ts =  byDate(msg, byContact=True)
-  if not besties:
-    besties = topN(ts, topn) 
-  
-  ts = filterDF(ts,  'cname', lambda x: x in besties)
-  #ts['keep'] = ts.cname.apply(lambda x: x in besties)
-  wide = panelPivot(ts).set_index('ymd')
-  wide['ymd'] = wide.index 
-  panel = pd.melt(wide, id_vars=['ymd'])
-  panel['ymd'] = panel['ymd'].apply(lambda x: str(x.date()))
+  if not besties: besties = topN(ts, topn) 
+  ts = filterDF(ts,  'cname', lambda x: x in besties)[['cname','ymd','msg_len']]
+  #ts['ymd'] = ts.ymd.apply(lambda x: str(x.date()))
 
-  panel.columns = ['date','key','value'] # to play nice with js code
-  return panel.set_index('key')
+  ts.columns = ['key','date','value']
+  print ts.head()
+  datestr = lambda x: str(x.date())
+  full_range = map(datestr, pd.date_range(ts.date.min(), ts.date.max()))
+  to_add = []
+  for key in ts.key.unique():
+    tmp = map(str, ts[ts.key == key].date.unique())
+    to_add = to_add + [[key,d,0] for d in full_range if d not in tmp]
+  adder = pd.DataFrame(to_add,columns=['key','date','value'])
+  ts = ts.append(adder).sort(['key','date'])
+
+  #cut out early texts
+  dvals = pd.DataFrame(ts.groupby('date').value.agg(np.sum))
+  dvals['csum'] = dvals.value.cumsum()/dvals.value.sum()
+  cutdate = str(dvals[dvals.csum > .01].index[0])
+  ts['date'] = ts.date.apply(str)
+  return ts[ts.date >= cutdate].set_index('key')

@@ -10,7 +10,7 @@
     left: 50
   };
 
-  tabwidth = 250;
+  tabwidth = 230;
 
   width = parseInt(d3.select('body').style('width'), 10) - margin.left - margin.right - tabwidth;
 
