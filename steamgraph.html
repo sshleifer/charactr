@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <!--http://bl.ocks.org/WillTurman/4631136-->
 <meta charset="utf-8">
+<head>
+  <title>Charactr</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
 <style>
 
-body {
-  font: 10px sans-serif;
-}
 
-.steam { 
-  background: #fff;
-}
 
-p {
-  font: 12px helvetica;
-}
+
+
 
 
 .axis path, .axis line {
@@ -32,9 +29,15 @@ button {
 </style>
 
 <body>
-    <div class="steam" id="steam" style="float:left"></div>
+  <div> <p id='desc'> This chart shows how many characters you've sent and received
+ with your best 12 friends over time. If you hover over a path, you will see the
+ date and number of characters exchanged with the person. </p> <div>
+ 
+  <div class="steam" id="steam" style="float:left"></div>
  </div>
  <script type="text/javascript", src="http://d3js.org/d3.v3.min.js"> </script>
  <script type="text/javascript", src="steamgraph.js"></script>
+ <p id='lnk'> <a href="index.html">Back to Chart 1 (scatterplot)</a>
+
 </body>
 </html>

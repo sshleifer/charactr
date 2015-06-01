@@ -90,6 +90,32 @@ d3.csv('ppl.csv', ((error, data) ->
 
   )
 )
+dispatch.on("load.menu", (data) ->
+  selectbox = d3.select('.page')
+    #.append('div')
+    #.attr('class':'search_container', 'id':'searchbox')
+    .insert('select')
+      .attr('class':'selectbox','id':'sbox', 'multiple':'multiple')
+
+  d3.select('#sbox').selectAll('option')
+    .data(data).enter().append('option')
+    .attr("value": (d) -> d.cname)
+    .text( (d) -> return d.cname)
+    .style('color':'red')
+  
+  $("#sbox").select2({ placeholder: "Find a Contact"})
+  
+  $('body').on('change', '#sbox', () ->
+    console.log('selected: ', $(this).val())
+    dispatch.statechange($(this).val(), data))
+  
+  
+  ### old box
+  selectbox.on('change',() ->
+    console.log('identified change')
+    dispatch.statechange(this.value, data))
+  ###
+)
 dispatch.on("load.scatter", (data) ->
   # don't want dots overlapping axis, so add in buffer to data domain
   xScale.domain [d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]
@@ -117,6 +143,7 @@ dispatch.on("load.scatter", (data) ->
     .style('text-anchor': 'end')
     .text('Characters Received')
   # draw dots
+
   svg.selectAll('.dot')
     .data(data).enter().append('circle')
     .attr('id': ((d) -> return d.cname), 'class': 'dot','r': 3,'cx': xMap,'cy':yMap)
@@ -130,33 +157,20 @@ dispatch.on("load.scatter", (data) ->
         '<br/> last: ' + d.end + '</b>')
           .style('opacity':1,'left': d3.event.pageX+5+'px','top': d3.event.pageY - 10 + 'px')
     .on('click', (d) -> d3.select(this).attr('r':3).style('fill':'rgb(0,105,225)'))
-    
+   
   dispatch.on("statechange.scatter", (selectValue, data) ->
-    console.log('selecting', selectValue)
-    console.log('take 2:', d3.select('select').property('value'))
-    k = svg.selectAll(".dot").filter((data) ->
-      return data.cname == selectValue).style("fill":"red").attr('r':10)
-    
-    console.log('tried to select', '#' + selectValue)
+    if selectValue
+      console.log('selecting', selectValue)
+      k = svg.selectAll(".dot").filter((data) ->
+        return data.cname in selectValue).style("fill":"red").attr('r':10)
+      p = svg.selectAll(".dot").filter((data) ->
+        return  ! (data.cname in selectValue)).attr('r':3).style('fill': 'rgb(0,105,225)')
+    else
+      svg.selectAll(".dot").attr('r':3).style('fill': 'rgb(0,105,225)')
+      # x'd out of last option
   )
 )
 
-dispatch.on("load.menu", (data) ->
-  select = d3.select('.page')
-    .append('div')
-    .append('select')
-      .attr('class':'select').style('fill': "red")
-
-         
-  select.selectAll('option')
-    .data(data).enter().append('option')
-    .attr("value": (d) -> d.cname)
-    .text( (d) ->
-      return d.cname)
-        .style('color':'red')
-
-  select.on('change',() -> dispatch.statechange(this.value, data))
-)
 
 
 addXax = (height, width)->
@@ -171,14 +185,4 @@ addXax = (height, width)->
   d3.select('svg').select("g").select('.xaxis').select('.lab1')
     .attr('x': width)
     .attr("dy", ".15em")
-  return
-
-re2 = -> # Find the new window dimensions */
-  console.log('2. Resizing from width'+ width)
-  width = parseInt(d3.select("body").style("width"),10) - margin.left - margin.right
-  console.log ('2a. Resizing from width'+ width)
-  #height = parseInt(d3.select("body").style("height")) - margin.top - margin.bottom
-  console.log ('2a. Resizing to height: '+ height)
-  addXax(height,width)
-  #d3.csv('ppl.csv',k)
   return

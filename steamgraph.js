@@ -24,14 +24,14 @@ strokecolor = colorrange[0];
 var format = d3.time.format("%Y-%m-%d");
 //var format = d3.time.format("%Y%m%d");
 
-var margin = {top: 20, right: 50, bottom: 30, left: 50};
+var margin = {top: 20, right: 50, bottom: 70, left: 50};
 var width = document.body.clientWidth - margin.left - margin.right;
 var height = 400 - margin.top - margin.bottom;
 
-var tooltip = d3.select("body")
+var tooltip = d3.select(".steam")
     .append("div")
     .attr("class", "remove")
-    .style("position", "absolute")
+    .style("position", "relative")
     .style("z-index", "100")
     .style("visibility", "hidden")
     .style("top", "20px")
@@ -49,14 +49,14 @@ var z = d3.scale.ordinal()
 var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
-    .ticks(d3.time.weeks);
+    .ticks(d3.time.month, 1).tickFormat(d3.time.format('%b %Y'));
 
-var yAxis = d3.svg.axis().scale(y);
+//var yAxis = d3.svg.axis().scale(y);
 
-var yAxisr = d3.svg.axis().scale(y);
+//var yAxisr = d3.svg.axis().scale(y);
 
 var stack = d3.layout.stack()
-    .offset("silhouette")  //could be wiggle
+    .offset("silhouette")
     .values(function(d) {return d.values; })
     .x(function(d) { return d.date; })
     .y(function(d) { return d.value; });
@@ -98,8 +98,13 @@ var graph = d3.csv(csvpath, function(data) {
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-  //TODO(SS): why is yaxis scale broken?
+      .call(xAxis)
+      .selectAll("text")
+      .attr("y", 0)
+      .attr("x", 9)
+      .attr("dy", ".35em")
+      .attr("transform", "rotate(90)")
+      .style("text-anchor", "start");
   /*svg.append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + width + ", 0)")
@@ -115,7 +120,7 @@ var graph = d3.csv(csvpath, function(data) {
       svg.selectAll(".layer").transition()
       .duration(250)
       .attr("opacity", function(d, j) {
-        return j != i ? 0.4 : 1;
+        return j != i ? 0.5 : 1;
     })})
 
     .on("mousemove", function(d, i) {
@@ -142,7 +147,7 @@ var graph = d3.csv(csvpath, function(data) {
       .classed("hover", true)
       .attr("stroke", strokecolor)
       .attr("stroke-width", "0.5px"), tooltip.html( "<p>" + d.key + "<br>" + pro +
-          "<br>" + prodate+  "</p>" ).style("visibility", "visible");
+          " characters exchanged" + "<br>" + prodate+  "</p>" ).style("visibility", "visible");
       
     })
     .on("mouseout", function(d, i) {
@@ -152,7 +157,8 @@ var graph = d3.csv(csvpath, function(data) {
       .attr("opacity", "1");
       d3.select(this)
       .classed("hover", false)
-      .attr("stroke-width", "0px"), tooltip.html( "<p>" + d.key + "<br>" + pro +
+      .attr("stroke-width", "0px"), 
+        tooltip.html( "<p>" + d.key + "<br>" + pro + "characters exchanged" +
           "<br>" + prodate+  "</p>" )
       .style("visibility", "hidden");
   })

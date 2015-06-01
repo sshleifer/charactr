@@ -1,6 +1,6 @@
 body {
-    font: 11px Avenir;
-  }
+  font: 11px Avenir;
+}
 
 .axis path, .axis line {
   fill: none;
@@ -9,9 +9,24 @@ body {
   shape-rendering: crispEdges;
 }
 
+#lnk {
+  text-align:center;
+  font-size:18pt;
+  width:100%;
+}
+
+#desc {
+  font-size: 12pt;
+  text-align: center;
+  width: 100%;
+}
 
 .dot {
   stroke: #000;
+}
+#sbox {
+  float: left;
+  width: 30%;
 }
 .chart {
   float: left;
