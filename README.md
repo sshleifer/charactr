@@ -15,19 +15,19 @@ If something breaks, take a screenshot of your Mac's console, and post it as an
 issue or email to sshleifer@gmail.com.
 
 ##Instructions for Developers (from terminal):
-- $ git clone **this repo**
-- $ cd imsg_stats
-- $ python imsg_stats.py
+- $ `git clone` **this repo**
+- $ `cd imsg_stats`
+- $ `python imsg_stats.py` to see the charts
 
-The data read from ~/Library/Messages/chat.db.
+The data are read from `~/Library/Messages/chat.db`.
 Data will be written to `imsg_stats/ppl.csv`and `imsg_stats/msg.csv`. 
 Feel free to play with your data and send pull requests. 
 If something breaks, take a screenshot of your Mac's console, and post it as an issue.
 
 ##Saving Your Data (without viewing charts)
-- $ git clone **this repo**
-- $ python save_data.py
-- $ data will be written to msg.csv
+- $ `git clone1 **this repo**
+- $ `python save_data.py`
+- $ data will be written to `imsg_stats/msg.csv`
 
 ##Future Plans
 
