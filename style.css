@@ -50,3 +50,20 @@ button {
   right: 50px;
   top: 10px;
 }
+
+
+h4 span {
+      font-size:14px;
+      font-weight: normal;
+      }
+h2 {
+  float: right;
+}
+h2 span {
+  font-size:14px;
+  font-weight:normal;
+  }
+p {
+  display: block;
+}
+

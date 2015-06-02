@@ -12,16 +12,16 @@ function chart(csvpath, color) {
 if (color == "blue") {
   colorrange = ["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
 }
-if (color == "mix") {
-  colorrange = ["#045A8D","#980043",  "#2B8CBE", "#DD1C77", "#74A9CF", "#DF65B0",  
-"#A6BDDB", "#C994C7",  "#D0D1E6", "#D4B9DA",  "#F1EEF6","#F1EEF6"]  
-  
-}
 else if (color == "pink") {
   colorrange = ["#980043", "#DD1C77", "#DF65B0", "#C994C7", "#D4B9DA", "#F1EEF6"];
 }
 else if (color == "orange") {
   colorrange = ["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9"];
+}
+else { //mix
+  colorrange = ["#045A8D","#980043",  "#2B8CBE", "#DD1C77", "#74A9CF", "#DF65B0",  
+                "#A6BDDB", "#C994C7",  "#D0D1E6", "#D4B9DA",  "#F1EEF6","#F1EEF6"]  
+  
 }
 strokecolor = colorrange[0];
 
@@ -41,34 +41,24 @@ var tooltip = d3.select(".steam")
     .style("top", "20px")
     .style("left", "80px");
 
-var x = d3.time.scale()
-    .range([0, width]);
+var x = d3.time.scale().range([0, width]);
 
-var y = d3.scale.linear()
-    .range([height-10, 0]);
+var y = d3.scale.linear().range([height-10, 0]);
 
-var z = d3.scale.ordinal()
-    .range(colorrange);
-
-var d3col = d3.scale.ordinal().range(colorrange);
+var z = d3.scale.ordinal().range(colorrange);
 
 var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
     .ticks(d3.time.month, 1).tickFormat(d3.time.format('%b %Y'));
 
-//var yAxis = d3.svg.axis().scale(y);
-
-//var yAxisr = d3.svg.axis().scale(y);
-
 var stack = d3.layout.stack()
-    .offset("silhouette")
+    .offset("wiggle")
     .values(function(d) {return d.values; })
     .x(function(d) { return d.date; })
     .y(function(d) { return d.value; });
 
-var nest = d3.nest()
-    .key(function(d) { return d.key; });
+var nest = d3.nest().key(function(d) { return d.key; });
 
 var area = d3.svg.area()
     .interpolate("cardinal")
@@ -89,16 +79,16 @@ var graph = d3.csv(csvpath, function(data) {
   });
 
   var layers = stack(nest.entries(data));
-
   x.domain(d3.extent(data, function(d) { return d.date; }));
   y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
 
+
   svg.selectAll(".layer")
-      .data(layers)
-    .enter().append("path")
+    .data(layers).enter()
+      .append("path")
       .attr("class", "layer")
       .attr("d", function(d) { return area(d.values); })
-      .style("fill", function(d, i) { return d3col(i); });
+      .style("fill", function(d, i) { return z(i); });
 
 
   svg.append("g")
@@ -111,14 +101,6 @@ var graph = d3.csv(csvpath, function(data) {
       .attr("dy", ".35em")
       .attr("transform", "rotate(90)")
       .style("text-anchor", "start");
-  /*svg.append("g")
-      .attr("class", "y axis")
-      .attr("transform", "translate(" + width + ", 0)")
-      .call(yAxis.orient("right"));
-  
-    svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis.orient("left"));*/
 
   svg.selectAll(".layer")
     .attr("opacity", 1)
@@ -138,14 +120,12 @@ var graph = d3.csv(csvpath, function(data) {
       var date_ix = 0;
       var km, kd;
       for (var k = 0; k < sel.length; k++) {
-        km = sel[k].date.getMonth()
-        kd = sel[k].date.getDate()
+        km = sel[k].date.getMonth(); kd = sel[k].date.getDate();
         if (km ==month && kd == day){
           date_ix = k;
           break;
         }
       }
-     
       pro = d.values[date_ix].value;
       prodate = d.values[date_ix].date.toString().slice(0,15);
       

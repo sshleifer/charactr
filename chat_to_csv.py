@@ -69,7 +69,7 @@ def writeChat(saved_data=[]):
   return concat_with_saved(msg, saved_data)[keep]
 
 
-def main(hidegroups=True, save_data=False, use_saved=False):
+def main(hidegroups=True, save_data=True, use_saved=False):
   print "being executed at", os.path.abspath('.')
   saved_data = checkSavedData() if use_saved else []
   msg = writeChat(saved_data) #Read in, clean a dataframe of all messages

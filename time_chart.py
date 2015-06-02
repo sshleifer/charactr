@@ -52,10 +52,7 @@ def timePanel(msg, besties=False, topn=10):
   ts =  byDate(msg, byContact=True)
   if not besties: besties = topN(ts, topn) 
   ts = filterDF(ts,  'cname', lambda x: x in besties)[['cname','ymd','msg_len']]
-  #ts['ymd'] = ts.ymd.apply(lambda x: str(x.date()))
-
   ts.columns = ['key','date','value']
-  print ts.head()
   datestr = lambda x: str(x.date())
   full_range = map(datestr, pd.date_range(ts.date.min(), ts.date.max()))
   to_add = []
