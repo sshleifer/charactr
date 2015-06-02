@@ -1,6 +1,6 @@
 # charactr
 A standalone desktop app that allows Mac/iMessage users to interactively visualize their
-texting history, using [d3.js] (http://d3js.org/) and [crossfilter.js](http://square.github.io/crossfilter/)
+texting history, using [d3.js] (http://d3js.org/) and [crossfilter.js](http://square.github.io/crossfilter/).
 
 ##Quick Install:
 1. Download charactr [Here] (http://pjdewire.github.io/charactr_site/).
