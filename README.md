@@ -8,22 +8,23 @@ texting history.
 3. This should open localhost:8000 in your browser, with the scatterplot
    showing. (if you have a previous version, you may need to refresh)
 4. Hover over dots to see the contacts and their stats.
+5. Continue to charts 2 and 3.
 5. When you are bored, force quit charactr.
 
 If something breaks, take a screenshot of your Mac's console, and post it as an
-Issue.
+issue or email to sshleifer@gmail.com.
 
 ##Instructions for Developers (from terminal):
 - $ git clone **this repo**
 - $ cd imsg_stats
 - $ python imsg_stats.py
-- To see steamgraph, $ open -a Safari steamgraph.html
 
 The data read from ~/Library/Messages/chat.db.
-Data will be written to imsg_stats/ppl.csv, feel free to play
-with it, send pull requests. If you add msg.to_csv('msg.csv') to the bottom of chat_to_csv.py, every text will be sent to a csv. If something breaks, take a screenshot of your Mac's console, and post it as an Issue.
+Data will be written to `imsg_stats/ppl.csv`and `imsg_stats/msg.csv`. 
+Feel free to play with your data and send pull requests. 
+If something breaks, take a screenshot of your Mac's console, and post it as an issue.
 
-##Saving Your Data
+##Saving Your Data (without viewing charts)
 - $ git clone **this repo**
 - $ python save_data.py
 - $ data will be written to msg.csv
@@ -32,5 +33,4 @@ with it, send pull requests. If you add msg.to_csv('msg.csv') to the bottom of c
 
 - Support Group Chats
 - More Plots, tables
-- CrossFilter
 - NLP, word clouds
