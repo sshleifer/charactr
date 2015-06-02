@@ -29,7 +29,7 @@ Play with your data and send pull requests!
 
 
 ##Saving Your Data (without viewing charts)
-- $ `git clone1 **this repo**
+- $ `git clone` **this repo**
 - $ `python save_data.py`
 - $ data will be written to `imsg_stats/msg.csv`
 
