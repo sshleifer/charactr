@@ -74,7 +74,7 @@ def tryCSV(df, path):
   except Exception as e:
     print 'ERROR on CSV WRITE:', e
 
-def main(hidegroups=True, save_data=False, use_saved=False):
+def main(hidegroups=True, save_data=True, use_saved=False):
   print "being executed at", os.path.abspath('.')
   saved_data = checkSavedData() if use_saved else []
   msg = writeChat(saved_data) #Read in, clean a dataframe of all messages
