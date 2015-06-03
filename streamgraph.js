@@ -28,9 +28,9 @@ strokecolor = colorrange[0];
 
 var format = d3.time.format("%Y-%m-%d");
 
-var margin = {top: 20, right: 50, bottom: 70, left: 50};
+var margin = {top: 0, right: 50, bottom: 70, left: 50};
 var width = document.body.clientWidth - margin.left - margin.right;
-var height = 400 - margin.top - margin.bottom;
+var height = 580 - margin.top - margin.bottom;
 
 var tooltip = d3.select(".steam")
     .append("div")
@@ -155,7 +155,7 @@ var graph = d3.csv(csvpath, function(data) {
         .style("position", "fixed")
         .style("z-index", "19")
         .style("width", "1px")
-        .style("height", "380px")
+        .style("height", "500px")
         .style("top", "100px")
         .style("bottom", "0px")
         .style("left", "20px")

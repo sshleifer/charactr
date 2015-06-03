@@ -1,5 +1,5 @@
 margin ={top: 20, right: 100, bottom: 50, left: 50}
-tabwidth = 230
+tabwidth = 250
 width = parseInt(d3.select('body').style('width'), 10) - margin.left - margin.right - tabwidth
 height = 500 - margin.top - margin.bottom
 exp = .4
@@ -35,7 +35,7 @@ svg = d3.select('.chart').insert('svg')
   .attr('transform': 'translate(' + margin.left + ',' + margin.top + ')')
 
 tooltip = d3.select('body').append('div').attr('class': 'tooltip')
-#tool2 = d3.select('body').append('div').attr('class':'tooltip').style('opacity': 0,'border': 'solid', 'height': '90px')
+tool2 = d3.select('body').append('div').attr('class':'tooltip')
 
  
 tabulate = (d1, columns) ->
@@ -92,9 +92,9 @@ d3.csv('ppl.csv', ((error, data) ->
 )
 dispatch.on("load.menu", (data) ->
   selectbox = d3.select('.page')
-    #.append('div')
-    #.attr('class':'search_container', 'id':'searchbox')
-    .insert('select')
+    .append('div')
+    .attr('class':'search_container', 'id':'searchbox')
+    .append('select')
       .attr('class':'selectbox','id':'sbox', 'multiple':'multiple')
 
   d3.select('#sbox').selectAll('option')
@@ -144,19 +144,32 @@ dispatch.on("load.scatter", (data) ->
     .text('Characters Received')
   # draw dots
 
-  svg.selectAll('.dot')
+  dots = svg.selectAll('.dot')
     .data(data).enter().append('circle')
     .attr('id': ((d) -> return d.cname), 'class': 'dot','r': 3,'cx': xMap,'cy':yMap)
-    .style('opacity': .7,'fill': 'rgb(0,105,225)')
-    .on 'mouseover', (d) ->
+    .style('opacity': .5,'fill': 'rgb(0,105,225)','zindex':-1)
+    .on('mouseover', (d) ->
       tooltip.html('<b><u>' + d.cname + '</u>' +
         '<br/> sent: ' + d.lensent +
         '<br/> received: ' + d.lenrec +
         '<br/> total: ' + d.totlen +
         '<br/> first: ' + d.start +
-        '<br/> last: ' + d.end + '</b>')
-          .style('opacity':1,'left': d3.event.pageX+5+'px','top': d3.event.pageY - 10 + 'px')
+        '<br/> last: ' + d.end + '</b>').style('zindex':19)
+          #.style('opacity':1,'left': d3.event.pageX+5+'px','top': d3.event.pageY - 10 + 'px')
+          .style('left': '100px', 'top':'100px', 'opacity':1)
+    )
+    .on('mouseout', (d) ->
+      tooltip.style('opacity':0)
+    )
     .on('click', (d) -> d3.select(this).attr('r':3).style('fill':'rgb(0,105,225)'))
+
+
+  ###dots.append('text').text('f')
+  .attr("x", (d) -> return xMap(d);)
+  .attr("y", (d) -> return yMap(d);)
+  #svg.selectAll('.dot').data(data).enter().append('text')
+    #  .text( (d) -> return d.cname.slice(1)).style('color':'black')
+  ###
    
   dispatch.on("statechange.scatter", (selectValue, data) ->
     if selectValue

@@ -11,13 +11,17 @@ import sqlite3
 from sys import argv
 import time
 from time_chart import timePanel
-
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
+MOBILE_BACKUP = os.path.expanduser("~/Library/Application Support/MobileSync/Backup/54585babaa97cc69042ccbc493d68a229ac8babd/3d0d7e5fb2ce288813306e4d4636395e047a3d28")
 BASE = 978307200
 
-def read_db():
+def read_db(path=MOBILE_BACKUP):
   '''Reads text data from chat.db to a dataframe'''
-  db = sqlite3.connect(CHAT_DB)
+  try:
+    db = sqlite3.connect(MOBILE_BACKUP)
+  except:
+    print 'Could not find iPhone backup'
+    db = sqlite3.connect(CHAT_DB)
   msg_raw = pd.read_sql("SELECT * from message", db)
   chat = pd.read_sql("SELECT * from chat", db)
   cmj =  pd.read_sql("SELECT * from chat_message_join", db)
