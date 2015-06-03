@@ -1,6 +1,6 @@
 # charactr
 A standalone desktop app that allows Mac/iMessage users to interactively visualize their
-texting history, using [d3.js] (http://d3js.org/) and [crossfilter.js](http://square.github.io/crossfilter/)
+texting history, using [d3.js] (http://d3js.org/) and [crossfilter.js](http://square.github.io/crossfilter/).
 
 ##Quick Install:
 1. Download charactr [Here] (http://pjdewire.github.io/charactr_site/).
@@ -18,6 +18,7 @@ issue or email to sshleifer@gmail.com.
 - $ `git clone` **this repo**
 - $ `cd imsg_stats`
 - $ `python imsg_stats.py` to see the charts
+- If that failed, try $ `pip install -r requirements.txt`
 
 The data are read from `~/Library/Messages/chat.db` by the `read_db()` function in `chat_to_csv.py`
 
