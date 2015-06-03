@@ -59,8 +59,9 @@ def timePanel(msg, besties=False, topn=10):
   for key in ts.key.unique():
     tmp = map(str, ts[ts.key == key].date.unique())
     to_add = to_add + [[key,d,0] for d in full_range if d not in tmp]
-  adder = pd.DataFrame(to_add,columns=['key','date','value'])
-  ts = ts.append(adder).sort(['key','date'])
+  if to_add:
+    adder = pd.DataFrame(to_add,columns=['key','date','value'])
+    ts = ts.append(adder).sort(['key','date'])
 
   #cut out early texts
   dvals = pd.DataFrame(ts.groupby('date').value.agg(np.sum))

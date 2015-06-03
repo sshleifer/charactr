@@ -14,16 +14,12 @@ DATA_FILES = ['index.html',
               'streamgraph.js',
               'chart3.html',
               'chart3.js',
-              'js_sources/dc.min.js',
-              'js_sources/dc.min.js.map',
-              'js_sources/crossfilter.min.js',
-              'js_sources/bootstrap.min.js',
               'style.css',
               'favicon.png']
 #OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
 OPTIONS = {
   'argv_emulation': True,
-  'iconfile':'favicon.png'
+  'iconfile':'favicon.icns'
 }
 
 setup(

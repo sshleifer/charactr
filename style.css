@@ -25,7 +25,6 @@ body {
   stroke: #000;
 }
 #sbox {
-  float: left;
   width: 30%;
 }
 .chart {

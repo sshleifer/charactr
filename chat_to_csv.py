@@ -68,8 +68,13 @@ def writeChat(saved_data=[]):
   msg = clean(msg)
   return concat_with_saved(msg, saved_data)[keep]
 
+def tryCSV(df, path):
+  try:
+    df.to_csv(path, encoding='utf-8')
+  except Exception as e:
+    print 'ERROR on CSV WRITE:', e
 
-def main(hidegroups=True, save_data=True, use_saved=False):
+def main(hidegroups=True, save_data=False, use_saved=False):
   print "being executed at", os.path.abspath('.')
   saved_data = checkSavedData() if use_saved else []
   msg = writeChat(saved_data) #Read in, clean a dataframe of all messages
@@ -82,9 +87,9 @@ def main(hidegroups=True, save_data=True, use_saved=False):
   ts = timePanel(msg, besties) 
   
   # Write csvs
-  if save_data: msg.to_csv('msg.csv',encoding='utf-8')
-  ts.to_csv('ts.csv')
-  ppl.to_csv('ppl.csv', encoding='utf-8')
+  if save_data: tryCSV(msg, 'msg.csv')
+  tryCSV(ts, 'ts.csv')
+  tryCSV(ppl, 'ppl.csv')
 
   ###Statistics for print statement
   names = msg.cname.fillna(0).unique()
