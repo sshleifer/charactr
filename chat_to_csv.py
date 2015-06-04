@@ -80,7 +80,13 @@ def clean(old):
 
 def writeChat(saved_data=[]):
   dbs = getDBS()
-  dfs = map(queryDB, dbs)
+  dfs = []
+  for db in dbs:
+    try:
+      dfs.append(queryDB(db))
+    except Exception as e:
+      print e
+
   return concat_with_saved(pd.concat(dfs), saved_data)
 
 def tryCSV(df, path):
