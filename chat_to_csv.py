@@ -80,6 +80,7 @@ def clean(old):
 
 def writeChat(saved_data=[]):
   dbs = getDBS()
+  print dbs
   dfs = []
   for db in dbs:
     try:
