@@ -19,21 +19,39 @@ MOBILE_BASE = os.path.expanduser('~/Library/Application Support/MobileSync/Backu
 
 BASE = 978307200
 
-def read_db():
-  '''Reads text data from chat.db to a dataframe'''
+def getDBS():
+  '''Reads text data from all possible chat.db sources'''
   try:
-    for x in os.walk(MOBILE_BASE):
-      if PTH in x[2]: 
-        backup_path = os.path.join(x[0],PTH)
-    db = sqlite3.connect(backup_path)
+    backups = [os.path.join(x[0],PTH) for x in os.walk(MOBILE_BASE) if PTH in x[2]]
+    dbs = map(sqlite3.connect, backups)
   except Exception as e:
     print e
     print 'Could not find iPhone backup'
-    db = sqlite3.connect(CHAT_DB)
+    dbs = [sqlite3.connect(CHAT_DB)] 
+  return dbs
+
+def queryDB(db):
+  '''Writes message number,type. text, other person and date to msg, a df'''
   msg_raw = pd.read_sql("SELECT * from message", db)
   chat = pd.read_sql("SELECT * from chat", db)
   cmj =  pd.read_sql("SELECT * from chat_message_join", db)
-  return msg_raw, chat, cmj
+
+  full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
+  msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
+  
+  msg['chat_id'] = msg.chat_identifier.apply(lambda x: x.replace('+1','')) 
+  clist = addresses()
+  
+  def findName(cid):
+    try:
+      return clist[cid].rstrip()
+    except KeyError:
+      return cid.rstrip()
+ 
+  msg['cname'] = msg.chat_id.apply(findName) 
+  keep = ['ROWID_x','text','tstamp','chat_id','is_sent','cname','msg_len']
+  msg = clean(msg)
+  return msg[keep]
 
 def checkSavedData():
   '''Get saved data if it exists.''' 
@@ -61,24 +79,9 @@ def clean(old):
     return msg
 
 def writeChat(saved_data=[]):
-  '''Writes message number,type. text, other person and date to msg, a df'''
-  msg_raw,chat,cmj = read_db()
-  full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
-  msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
-  
-  msg['chat_id'] = msg.chat_identifier.apply(lambda x: x.replace('+1','')) 
-  clist = addresses()
-  
-  def findName(cid):
-    try:
-      return clist[cid].rstrip()
-    except KeyError:
-      return cid.rstrip()
- 
-  msg['cname'] = msg.chat_id.apply(findName) 
-  keep = ['ROWID_x','text','tstamp','chat_id','is_sent','cname','msg_len']
-  msg = clean(msg)
-  return concat_with_saved(msg, saved_data)[keep]
+  dbs = getDBS()
+  dfs = map(queryDB, dbs)
+  return concat_with_saved(pd.concat(dfs), saved_data)
 
 def tryCSV(df, path):
   try:
