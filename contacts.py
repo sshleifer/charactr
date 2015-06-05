@@ -1,22 +1,22 @@
 '''Reads in addresses from DB stored at path, or backup, 
 to label phone numbers.'''
+from os.path import expanduser as eu
 import os
 import pandas as pd
 import numpy as np
 import sqlite3
 import sys
 
-PATH = os.path.expanduser("~/Library/Application Support/AddressBook/AddressBook-v22.abcddb")
-SRCS = os.path.expanduser("~/Library/Application Support/AddressBook/Sources")
+COMP_PATH = eu("~/Library/Application Support/AddressBook/AddressBook-v22.abcddb")
 
+ENDING = "AddressBook-v22.abcddb"
+SRCS = eu("~/Library/Application Support/AddressBook/Sources")
+MO_PTH = '31bb7ba8914766d4ba40d6dfb6113c8b614be442'
+MO_BASE = eu('~/Library/Application Support/MobileSync/Backup/')
 def extractContacts(path):
   '''Get Contact Data from PHONENUMBER, RECORD Tables. As in icloud_query.py'''
   try:
-    ad_db = sqlite3.connect(os.path.expanduser(path))
-  except:
-    print "INVALID PATH"
-    return {}
-  try:
+    ad_db = sqlite3.connect(path)
     jn = pd.read_sql("""SELECT ZFULLNUMBER, ZSORTINGFIRSTNAME FROM ZABCDPHONENUMBER
               LEFT OUTER JOIN ZABCDRECORD
               ON ZABCDPHONENUMBER.ZOWNER = ZABCDRECORD.Z_PK""", ad_db)
@@ -25,21 +25,23 @@ def extractContacts(path):
     clist = {x[0]: x[1][:len(x[1])/2] for x in cstart} 
     return clist
   except pd.io.sql.DatabaseError as e:
-    print e, "failed on:", path
+    print "Non-fatal DB error ON path: ", path
     return {}
+
+
 
 def addresses():
   '''create the {number: name} dictionary from contacts app, or phone backup.'''
-  contact_list = extractContacts(PATH)
+  contact_list = extractContacts(COMP_PATH)
+  backups = [os.path.join(x[0],MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
+  print backups
   if os.path.exists(SRCS):
-    BACKUPS = [os.path.expanduser(os.path.join("~/Library/Application Support",
-      "AddressBook/Sources", source,
-      "AddressBook-v22.abcddb")) for source in os.listdir(SRCS)]
-    for bu in BACKUPS: 
-      contact_list.update(extractContacts(bu))
-    if not contact_list:
-      print "Contacts: checked %s and %s" % (PATH, " ".join(BACKUPS))
-      print "NO CONTACTS FOUND"
+    backups = backups + [os.path.join(SRCS,mid,ENDING) for mid in os.listdir(SRCS)]
+  for bu in backups: 
+    contact_list.update(extractContacts(bu))
+  if not contact_list:
+    print "Contacts: checked", COMP_PATH, backups 
+    print "NO CONTACTS FOUND"
   return contact_list
 
 def groupbyContact(msg):
