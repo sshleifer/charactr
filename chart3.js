@@ -6,6 +6,7 @@ var dayOfWeekChart = dc.rowChart("#dc-dayweek-chart");
 var islandChart = dc.pieChart("#dc-sent-chart");
 var timeChart = dc.lineChart("#dc-time-chart");
 
+var pctFormat = d3.format('%')
 // load data from a csv file
 d3.csv("msg.csv", function (data) {
   var format = d3.time.format("%Y-%m-%d %H:%M:%S");
@@ -57,7 +58,6 @@ d3.csv("msg.csv", function (data) {
   var volumebyMonthGroup = volumebyMonth.group()
     .reduceSum(function(d) { return d.msg_len; });
 
-  //debugger;
   //row chart Day of Week
   var dayOfWeek = facts.dimension(function (d) {
     switch (d.tstamp.getDay()) {
@@ -83,12 +83,10 @@ d3.csv("msg.csv", function (data) {
 
   //Pie Chart
   var sent = facts.dimension(function (d) {
-    return d.is_sent ? "Sent" : "Received";
+    return d.is_sent ? "Sent" : "Rec.";
     });
-
-
   var sentGroup = sent.group().reduceSum(function (d) {return d.msg_len;});
-
+  
   var timeDimension = facts.dimension(function (d) {return d.tstamp;});
   // Setup the charts
 
@@ -120,11 +118,7 @@ d3.csv("msg.csv", function (data) {
     .dimension(volumebyMonth)
     .group(volumebyMonthGroup)
 //    .brushOn(false)			// added for title
-    .title(function(d){
-      //return dtgFormat2(d.data.key)
-      + "\nNumber of Events: " + d.value;
-      })
-	.elasticY(true)
+    .elasticY(true)
     .x(d3.time.scale()
       .domain(d3.extent(data, function(d) { return d.date; })))
     .xAxis();
@@ -149,8 +143,12 @@ d3.csv("msg.csv", function (data) {
     .radius(100)
     .innerRadius(30)
     .dimension(sent)
-    .title(function(d){return d.value;})
-    .group(sentGroup);
+    .group(sentGroup)
+    .label(function(d){
+      return d.data.key + " (" + Math.round((d.endAngle-d.startAngle)/Math.PI * 50) + '%)';
+    });
+
+
   // Data Table 
   dataTable.width(960).height(800)
     .dimension(timeDimension)
@@ -161,8 +159,6 @@ d3.csv("msg.csv", function (data) {
       function(d) {return d.cname;}, 
       function(d) {return d.tstamp.toString().slice(0,15);},
       function(d) {return d.tstamp.toString().slice(16,25);},
-
-      //function(d) {return d.tstamp;},
       function(d) {return d.is_sent ? "Sent" : "Received";},
       function(d) { return d.text; },
       function(d) { return d.msg_len;}
