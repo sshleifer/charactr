@@ -13,6 +13,9 @@ ENDING = "AddressBook-v22.abcddb"
 SRCS = eu("~/Library/Application Support/AddressBook/Sources")
 MO_PTH = '31bb7ba8914766d4ba40d6dfb6113c8b614be442'
 MO_BASE = eu('~/Library/Application Support/MobileSync/Backup/')
+PD_DIR = '6c9e92f946687ecbd671fbfd202edee880c259cf/'
+PD_TOT_PATH = os.path.join(os.path.join(MO_BASE, PD_DIR), MO_PTH)
+
 def extractContacts(path):
   '''Get Contact Data from PHONENUMBER, RECORD Tables. As in icloud_query.py'''
   try:
@@ -28,16 +31,29 @@ def extractContacts(path):
     print "Non-fatal DB error ON path: ", path
     return {}
 
+def backupContacts(path):
+  '''makes {number: name} dict from iphone backup '''
+  try:
+    db = sqlite3.connect(path)
+    jn = pd.read_sql("""SELECT c15Phone, c0First, c1Last, c6Organization from ABPersonFullTextSearch_content""", db)
+    print jn.head()
+    return {}
+  except pd.io.sql.DatabaseError:
+    print "Error in backupContacts with path: : ", path
+    return {}
+
 
 
 def addresses():
   '''create the {number: name} dictionary from contacts app, or phone backup.'''
   contact_list = extractContacts(COMP_PATH)
-  backups = [os.path.join(x[0],MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
+  backups = [os.path.join(MO_BASE, x[0]) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
+  # backups = [os.path.join(x[0],MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
   print backups
   if os.path.exists(SRCS):
     backups = backups + [os.path.join(SRCS,mid,ENDING) for mid in os.listdir(SRCS)]
   for bu in backups: 
+    contact_list.update(backupContacts(bu))
     contact_list.update(extractContacts(bu))
   if not contact_list:
     print "Contacts: checked", COMP_PATH, backups 
