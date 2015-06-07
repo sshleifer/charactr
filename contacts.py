@@ -49,24 +49,27 @@ def backupContacts(path):
     clean = lambda x: ''.join(c for c in x if '0' <= c <= '9')[-17:-7]
     cstart = zip(map(clean, jn.c15Phone), jn.c0First, jn.c1Last)
     clist = {x[0]: x[1] + ' ' + x[2] for x in cstart}
-    return clist
+    return clist, True      # always return true?
   # want better except
   except Exception:
     print "Error in backupContacts with path: ", path
-    return {}
+    return {}, False
 
 
 def addresses():
   '''create the {number: name} dictionary from contacts app, or phone backup.'''
+  success = False       # so we only call backupContacts once
   contact_list = extractContacts(COMP_PATH)
   backups = [os.path.join(os.path.join(MO_BASE, x[0]), MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
-  print backups
+  # print backups
   if os.path.exists(SRCS):
     backups = backups + [os.path.join(SRCS,mid,ENDING) for mid in os.listdir(SRCS)]
   for bu in backups: 
-    # shouldn't call both
-    contact_list.update(backupContacts(bu))
-    contact_list.update(extractContacts(bu))
+    if not success and MO_PTH in bu:
+      new_cdict, success = backupContacts(bu)
+      contact_list.update(new_cdict)
+    else:
+        contact_list.update(extractContacts(bu))
   if not contact_list:
     print "Contacts: checked", COMP_PATH, backups 
     print "NO CONTACTS FOUND"
