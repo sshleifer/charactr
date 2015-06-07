@@ -31,29 +31,14 @@ def extractContacts(path):
     print "Non-fatal DB error ON path: ", path
     return {}
 
-'''
-def backupClean(x):
-  try:
-    ''.join(c for c in x if '0' <= c <= '9')[-19:-9]
-  except TypeError:
-    ''
-'''
-
 def backupContacts(path):
   '''makes {number: name} dict from iphone backup '''
-  # path = '/Users/peterdewire/Library/Application Support/MobileSync/Backup/6c9e92f946687ecbd671fbfd202edee880c259cf/31bb7ba8914766d4ba40d6dfb6113c8b614be442'
-  print
-  print path
   try:
-    path = '/Users/peterdewire/Library/Application Support/MobileSync/Backup/6c9e92f946687ecbd671fbfd202edee880c259cf/31bb7ba8914766d4ba40d6dfb6113c8b614be442'
     db = sqlite3.connect(path)
     jn = pd.read_sql("""SELECT c15Phone, c0First, c1Last, c6Organization from ABPersonFullTextSearch_content""", db)
     for x in range(0, jn.c6Organization.size):
       if jn.c6Organization.loc[x] == None:
         jn.c6Organization.loc[x] = ''
-    #for x in range(0, jn.c6Organization.size):
-     # if jn.c6Organization.loc[x] == None:
-      #  jn.c6Organization.loc[x] = ''
       if jn.c0First.loc[x] == None:
         jn.c0First.loc[x] = ''
       if jn.c1Last.loc[x] == None:
@@ -61,14 +46,12 @@ def backupContacts(path):
       if jn.c15Phone.loc[x] == None:
         jn.c15Phone.loc[x] = ''
 
-    print jn.head()
-
     clean = lambda x: ''.join(c for c in x if '0' <= c <= '9')[-17:-7]
     cstart = zip(map(clean, jn.c15Phone), jn.c0First, jn.c1Last)
     clist = {x[0]: x[1] + ' ' + x[2] for x in cstart}
     return clist
-  # need a better except, doesn't work w bad paths
-  except pd.io.sql.DatabaseError as e:
+  # want better except
+  except Exception:
     print "Error in backupContacts with path: ", path
     return {}
 
@@ -77,11 +60,11 @@ def addresses():
   '''create the {number: name} dictionary from contacts app, or phone backup.'''
   contact_list = extractContacts(COMP_PATH)
   backups = [os.path.join(os.path.join(MO_BASE, x[0]), MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
-  # backups = [os.path.join(x[0],MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
   print backups
   if os.path.exists(SRCS):
     backups = backups + [os.path.join(SRCS,mid,ENDING) for mid in os.listdir(SRCS)]
   for bu in backups: 
+    # shouldn't call both
     contact_list.update(backupContacts(bu))
     contact_list.update(extractContacts(bu))
   if not contact_list:
