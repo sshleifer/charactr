@@ -13,8 +13,6 @@ ENDING = "AddressBook-v22.abcddb"
 SRCS = eu("~/Library/Application Support/AddressBook/Sources")
 MO_PTH = '31bb7ba8914766d4ba40d6dfb6113c8b614be442'
 MO_BASE = eu('~/Library/Application Support/MobileSync/Backup/')
-PD_DIR = '6c9e92f946687ecbd671fbfd202edee880c259cf/'
-PD_TOT_PATH = os.path.join(os.path.join(MO_BASE, PD_DIR), MO_PTH)
 
 def extractContacts(path):
   '''Get Contact Data from PHONENUMBER, RECORD Tables. As in icloud_query.py'''
@@ -35,17 +33,10 @@ def backupContacts(path):
   '''makes {number: name} dict from iphone backup '''
   try:
     db = sqlite3.connect(path)
-    jn = pd.read_sql("""SELECT c15Phone, c0First, c1Last, c6Organization from ABPersonFullTextSearch_content""", db)
-    for x in range(0, jn.c6Organization.size):
-      if jn.c6Organization.loc[x] == None:
-        jn.c6Organization.loc[x] = ''
-      if jn.c0First.loc[x] == None:
-        jn.c0First.loc[x] = ''
-      if jn.c1Last.loc[x] == None:
-        jn.c1Last.loc[x] = ''
-      if jn.c15Phone.loc[x] == None:
-        jn.c15Phone.loc[x] = ''
+    sql_stm = 'SELECT c15Phone, c0First, c1Last, c6Organization from ABPersonFullTextSearch_content'
+    jn = pd.read_sql(sql_stm, db)
 
+    jn = jn.applymap(lambda x: '' if x == None else x)
     clean = lambda x: ''.join(c for c in x if '0' <= c <= '9')[-17:-7]
     cstart = zip(map(clean, jn.c15Phone), jn.c0First, jn.c1Last)
     clist = {x[0]: x[1] + ' ' + x[2] for x in cstart}
@@ -60,7 +51,7 @@ def addresses():
   '''create the {number: name} dictionary from contacts app, or phone backup.'''
   success = False       # so we only call backupContacts once
   contact_list = extractContacts(COMP_PATH)
-  backups = [os.path.join(os.path.join(MO_BASE, x[0]), MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
+  backups = [os.path.join(MO_BASE, x[0], MO_PTH) for x in os.walk(MO_BASE) if MO_PTH in x[2]]
   # print backups
   if os.path.exists(SRCS):
     backups = backups + [os.path.join(SRCS,mid,ENDING) for mid in os.listdir(SRCS)]
