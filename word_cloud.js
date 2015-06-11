@@ -1,10 +1,27 @@
 var fill = d3.scale.category20();
 
+var getSize = function(d) {
+  return {text: "HI", size: 60};
+}
+
+/* var words = read_file() */
+var counts = {}
+
+for (var i = 0; i < words.length; i++) {
+  var cur = arr[i];
+  counts[cur] = counts[cur] ? counts[cur] + 1 : 1;
+}
+
+var words_arr = []
+for (var i = 0; i < counts.length; i++) {
+  words_arr[i] = {text: /* how to index/access object */}
+}
+
+console.log("hi")
+
 d3.layout.cloud().size([300, 300])
-  .words(["Sam", "Sam", "peter", "james"].map(function(d) {
-        return {text: d, size: 10 + Math.random() * 90};
-      })) 
-.padding(5)
+  .words([{text: "Sam", size: 60}, {text: "Peter", size: 70}])
+  .padding(5)
   .rotate(function() { return ~~(Math.random() * 2) * 90; })
   .font("Impact")
   .fontSize(function(d) { return d.size; })
