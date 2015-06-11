@@ -1,9 +1,7 @@
 var fill = d3.scale.category20();
 
 d3.layout.cloud().size([300, 300])
-  .words([
-      "Hello", "world", "normally", "you", "want", "more", "words",
-      "than", "this"].map(function(d) {
+  .words(["Sam", "Sam", "peter", "james"].map(function(d) {
         return {text: d, size: 10 + Math.random() * 90};
       })) 
 .padding(5)
