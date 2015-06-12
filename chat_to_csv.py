@@ -25,15 +25,18 @@ def queryDB(db_path):
     msg_raw = pd.read_sql("SELECT * from message", db)
     chat = pd.read_sql("SELECT * from chat", db)
     cmj =  pd.read_sql("SELECT * from chat_message_join", db)
+    hdl =  pd.read_sql("SELECT * from handle", db)
+
   except Exception as e:
     print db_path, 'on path: \n', e
     return []
   ### Merge db reads
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
   msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
+  msg  = msg.merge(hdl, left_on='handle_id', right_on='ROWID')
   ### Find contact names and clean columns
   msg['chat_id'] = msg.chat_identifier.apply(lambda x: x.replace('+1','')) 
-  clist = addresses()
+  clist = addresses(msg)
   def findName(cid):
     try:
       return clist[cid].rstrip()
@@ -90,12 +93,12 @@ def main(hidegroups=True, use_saved=False):
   print "being executed at", os.path.abspath('.')
   saved_data = checkSavedData() if use_saved else []
   msg = writeChat(saved_data)
-  if len(argv) <= 1 or hidegroups: 
-    msg = msg[msg.cname.str.startswith('chat') != True]
+  #if len(argv) <= 1 or hidegroups: 
+    #msg = msg[msg.cname.str.startswith('chat') != True]
   ppl = groupbyContact(msg.copy()).sort('totlen', ascending=False) 
   print ppl.head()
   besties = map(lambda x: x.rstrip(),ppl.index[:10])
-  print besties
+  print 'besties:', besties
   ts = timePanel(msg, besties) 
   
   tryCSV(msg, 'msg.csv')

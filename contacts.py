@@ -1,5 +1,6 @@
 '''Reads in addresses from DB stored at path, or backup, 
 to label phone numbers.'''
+from helpers.utils import filterDF
 from os.path import expanduser as eu
 import os
 import pandas as pd
@@ -47,7 +48,23 @@ def backupContacts(path):
     return {}, False
 
 
-def addresses():
+def groupNames(msg, clist):
+  chats = filterDF(msg, 'chat_identifier', lambda x: x.startswith('chat'))
+  gb = chats.groupby('chat_identifier')
+  tmp = gb.id.agg(lambda x: list(set(x)))
+  tmp = dict(zip(tmp.index, tmp.values))
+  def findName(cid):
+    try:
+      return clist[cid].split(' ')[0]
+    except KeyError:
+      return cid.rstrip()
+  
+  for k,v in tmp.iteritems():
+    val = ','.join([findName(x[1:].lstrip('1')) for x in v])
+    clist[k] = val 
+  return clist
+
+def addresses(msg):
   '''create the {number: name} dictionary from contacts app, or phone backup.'''
   success = False       # so we only call backupContacts once
   contact_list = extractContacts(COMP_PATH)
@@ -64,7 +81,8 @@ def addresses():
   if not contact_list:
     print "Contacts: checked", COMP_PATH, backups 
     print "NO CONTACTS FOUND"
-  return contact_list
+  #contact_list = groupNames(msg, contact_list)
+  return groupNames(msg, contact_list)
 
 def groupbyContact(msg):
   '''Group conversations by contact, and calculate summary stats'''
