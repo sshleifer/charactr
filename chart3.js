@@ -1,25 +1,20 @@
 // Create the dc.js chart objects & link to div
 var dataTable = dc.dataTable("#dc-table-graph");
 var charsChart = dc.rowChart("#dc-chars-chart");
-//var depthChart = dc.barChart("#dc-depth-chart");
+var hourChart = dc.barChart("#dc-hour-chart");
 var dayOfWeekChart = dc.rowChart("#dc-dayweek-chart");
 var islandChart = dc.pieChart("#dc-sent-chart");
 var timeChart = dc.lineChart("#dc-time-chart");
 
 var pctFormat = d3.format('%')
-// load data from a csv file
 d3.csv("msg.csv", function (data) {
   var format = d3.time.format("%Y-%m-%d %H:%M:%S");
-  //filter data? 
+  
   data.forEach(function(d) { 
     d.msg_len = + d.msg_len;
     d.tstamp = format.parse(d.tstamp);
     d.is_sent = + d.is_sent;
-    d.hour = d.tstamp.getHours(); 
-    d.month = d.tstamp.getMonth();
-    d.day = d.tstamp.getDate();
-    d.year = d.tstamp.getFullYear();
-    d.date =  new Date(d.year, d.month, d.day); 
+    d.date =  new Date(d.tstamp.getFullYear(), d.tstamp.getMonth(), d.tstamp.getDate()); 
   });
 
   // Run the data through crossfilter and load our 'facts'
@@ -33,29 +28,18 @@ d3.csv("msg.csv", function (data) {
   var charsGroupSum = chars.group()
     .reduceSum(function(d) { return d.msg_len;});	// sums 
 
-  //  debugger;
-  var top10 = charsGroupSum.top(10) 
-  var besties = new Array();
-  for (i = 0; i< 10; i++){
-	  besties.push(top10[i].key);
-  }
-  var isBesty = function (name){
-    return (besties.indexOf(name) == -1) ? 0 : 1;
-  };
-  
   var filtChar = {
     all: function () {
-        return charsGroupSum.top(Infinity).filter( function (d) { return isBesty(d.key);} );
+        return charsGroupSum.top(10);
     }
-}
+  }
 
-  //debugger;
   // time chart
-  var volumebyMonth = facts.dimension(function(d) {
+  var timeseries = facts.dimension(function(d) {
     return d.date;
   });
 
-  var volumebyMonthGroup = volumebyMonth.group()
+  var timeseriesGroup = timeseries.group()
     .reduceSum(function(d) { return d.msg_len; });
 
   //row chart Day of Week
@@ -80,6 +64,12 @@ d3.csv("msg.csv", function (data) {
   var dayOfWeekGroup = dayOfWeek.group()
     .reduceSum(function(d) { return d.msg_len; });
 
+  var hour = facts.dimension(function (d) {
+    return d.tstamp.getHours();});
+  var hourGroup = hour.group()
+    .reduceSum(function(d) { return d.msg_len; });
+  //debugger;
+
 
   //Pie Chart
   var sent = facts.dimension(function (d) {
@@ -96,12 +86,12 @@ d3.csv("msg.csv", function (data) {
     .group(all);
     
   // Magnitide Bar Graph Counted
-  charsChart.width(400)
+  charsChart.width(300)
     .height(300)
     .margins({top: 5, left: 10, right: 10, bottom: 20})
     .dimension(chars)
     .group(filtChar)
-    .colors(d3.scale.category10())
+    .colors(d3.scale.category20())
     .label(function (d){
        return d.key;
     })
@@ -110,13 +100,13 @@ d3.csv("msg.csv", function (data) {
     .xAxis().ticks(4);
   
   // time graph
-  timeChart.width(960)
+  timeChart.width(1100)
     .height(150)
     .transitionDuration(500)
    // .mouseZoomable(true)
     .margins({top: 10, right: 10, bottom: 20, left: 40})
-    .dimension(volumebyMonth)
-    .group(volumebyMonthGroup)
+    .dimension(timeseries)
+    .group(timeseriesGroup)
 //    .brushOn(false)			// added for title
     .elasticY(true)
     .x(d3.time.scale()
@@ -124,7 +114,7 @@ d3.csv("msg.csv", function (data) {
     .xAxis();
 
   //row chart day of week
-  dayOfWeekChart.width(300)
+  dayOfWeekChart.width(200)
     .height(220)
     .margins({top: 5, left: 10, right: 10, bottom: 20})
     .dimension(dayOfWeek)
@@ -136,6 +126,20 @@ d3.csv("msg.csv", function (data) {
     .title(function(d){return d.value;})
     .elasticX(true)
     .xAxis().ticks(4);
+  
+hourChart.width(400)
+  .height(300)
+  .margins({top: 5, left: 40, right: 10, bottom: 20})
+  .dimension(hour)
+  .group(hourGroup)
+  .x(d3.scale.linear().domain([0,23]))
+  .colors(d3.scale.category20())
+  .label(function (d){
+    return d.key;})
+  .title(function(d){return d.value;})
+  .elasticY(true)
+  .xAxis().ticks(4);
+
 
   // is_sent pie chart
   islandChart.width(250)
