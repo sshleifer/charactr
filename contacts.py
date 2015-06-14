@@ -49,8 +49,8 @@ def backupContacts(path):
 
 
 def groupNames(msg, clist):
-  chats = filterDF(msg, 'chat_identifier', lambda x: x.startswith('chat'))
-  gb = chats.groupby('chat_identifier')
+  chats = filterDF(msg, 'chat_id', lambda x: x.startswith('chat'))
+  gb = chats.groupby('chat_id')
   tmp = gb.id.agg(lambda x: list(set(x)))
   tmp = dict(zip(tmp.index, tmp.values))
   def findName(cid):

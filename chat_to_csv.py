@@ -28,7 +28,7 @@ def queryDB(db_path):
     hdl =  pd.read_sql("SELECT * from handle", db)
 
   except Exception as e:
-    print db_path, 'on path: \n', e
+    print 'Non-Fatal db error at %s \n', e % (db_path)
     return []
   ### Merge db reads
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')
@@ -48,8 +48,8 @@ def queryDB(db_path):
   msg['tstamp'] = msg.date.apply(date_cut)
   msg['day'] = msg.tstamp.apply(lambda x: x.date())
   msg['msg_len'] =  msg.text.fillna('').apply(msgLen)
-  keep = ['ROWID_x','text','tstamp','chat_id','is_sent','cname','msg_len','day']
-  return msg[keep]
+  return msg
+  #return msg[keep]
 
 def readDB(test_path=False):
   '''Reads text data from all possible iPhone backups.
@@ -79,38 +79,34 @@ def concatSaved(msg, saved_data):
 def writeChat(saved_data=[]):
   '''combine and deduplicate the various db reads'''
   df = pd.concat(readDB()).drop_duplicates(subset=['day','cname','text']) 
-  #TODO (SS): how slow is above?
   return concatSaved(df,saved_data) if saved_data else df
 
 def tryCSV(df, path):
   try:
     df.to_csv(path, encoding='utf-8')
   except Exception as e:
-    print 'ERROR on CSV WRITE to %s:', e % (path)
-    print 'DF:', df 
+    print 'ERROR on CSV WRITE to %s:', e, df % (path)
 
 def main(hidegroups=True, use_saved=False):
   print "being executed at", os.path.abspath('.')
   saved_data = checkSavedData() if use_saved else []
   msg = writeChat(saved_data)
-  #if len(argv) <= 1 or hidegroups: 
-    #msg = msg[msg.cname.str.startswith('chat') != True]
+  print msg.shape
+  if len(argv) <= 1 or hidegroups: 
+    msg = msg[msg.chat_id.str.startswith('chat') != True]
   ppl = groupbyContact(msg.copy()).sort('totlen', ascending=False) 
   print ppl.head()
   besties = map(lambda x: x.rstrip(),ppl.index[:10])
   print 'besties:', besties
   ts = timePanel(msg, besties) 
   
-  tryCSV(msg, 'msg.csv')
+  keep = ['text','tstamp','is_sent','cname','msg_len']
+  tryCSV(msg[keep], 'msg.csv')
   tryCSV(ts, 'ts.csv')
   tryCSV(ppl, 'ppl.csv')
 
-  ###Statistics for print statement
-  names = msg.cname.fillna(0).unique()
-  glen = len(filter(lambda x: x and x.startswith('chat'), names))
-  print '''Writing %d texts with %d individuals and %d groups since %s to ts.csv and
-    ppl.csv in %s''' %(len(msg),len(names) - glen, glen,msg.tstamp.min(), os.path.abspath('.'))
-  # return msg # for interactive use
+  print '''Found %d texts in %d conversations since %s.''' % (len(msg),len(msg.cname.unique()), msg.tstamp.min())
+  #return msg # for interactive use
 
 if __name__ == '__main__':
   main()
