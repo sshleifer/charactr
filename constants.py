@@ -130,3 +130,4 @@ txt_stopwords = ['k', 'kk', 'u','im', 'thx', 'ur', 'urs', 'pce']
 
 stopwords.extend(txt_stopwords)
 
+punctuation = '-+=;:\'"?/.,!@#$%^&*()'

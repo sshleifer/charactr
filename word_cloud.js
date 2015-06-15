@@ -14,7 +14,7 @@ function processData (x) {
     var words_arr = [];
     var i = 0;
     for (var prop in counts) {
-        words_arr[i] = {text: prop, size: counts[prop] * .02 };
+        words_arr[i] = {text: prop, size: counts[prop] * .03 };
         i = i + 1;
         // debugger;
     }
@@ -24,7 +24,7 @@ function processData (x) {
       return b.size - a.size;
     });
 
-    return words_arr.slice(0, 100);
+    return words_arr.slice(3, 200);
 }
 
 $(document).ready(function() {
@@ -35,11 +35,17 @@ $(document).ready(function() {
     success: function(data) {
       // var klaus = [{text: "Klaus", size: 60}, {text: "Teuber", size: 70}];
       var counts = processData(data);//.substring(0, 10000000));
+      // var angles = [-90, -60, -30, 0, 30, 60, 90];
 
       d3.layout.cloud().size([300, 300])
         .words(counts) // [{text: "Sam", size: 60}, {text: "Peter", size: 70}])
         .padding(5)
-        .rotate(function() { return ~~(Math.random() * 2) * 90; })
+        .rotate(function() { 
+                  angle = ~~(Math.random() * 2) * 90;
+                  // angle = angles[~~(Math.random() * 7)];
+                  // angle = ~~(Math.random() * 90);
+                  // angle = angle < 91
+                return angle;}) //(Math.random() * 2) * 70; })
         .font("Impact")
         .fontSize(function(d) { return d.size; })
         .on("end", draw)
@@ -68,6 +74,3 @@ $(document).ready(function() {
     }
   })
 })
-
-
-
