@@ -1,9 +1,33 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<html lang='en'>
+<head>
+    <meta charset="utf-8">
+
+    <title>Charactr: Word Cloud</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <link rel="stylesheet" type="text/css" href="style.css"></style>
+
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="js_sources/d3.layout.cloud.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+    </script>
+    <script src="word_cloud.js"></script>
+
+</head>
 <body>
-  <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="js_sources/d3.layout.cloud.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
-  </script>
-  <script src="word_cloud.js"></script>
+  <div>
+    <h1>Cloud!</h1>
+    <p id='desc'> 
+    This word cloud shows you the stuff that you and your friends talk about the
+    most
+    </p>
+    <div align="center">
+      <p id ='lnk' style="display:inline;">
+      <a href="index.html">Chart 1</a> &nbsp;
+      <a href="streamgraph.html">Chart 2</a> &nbsp;
+      <a href="chart3.html">Chart 3</a> &nbsp;
+      <a href="https://docs.google.com/forms/d/1gF_x4mVOv8p_iPEUwmAno4gY5PUnbBJdVGIaIon89Zc/viewform?usp=send_form" target="_blank">Join Mailing List</a>
+      </p>
+    </div>
+  </div>
 </body>
