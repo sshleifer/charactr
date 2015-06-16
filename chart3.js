@@ -13,7 +13,7 @@ d3.csv("msg.csv", function (data) {
   var format = d3.time.format("%Y-%m-%d %H:%M:%S");
   
   data.forEach(function(d) { 
-    d.msg_len = + d.msg_len;
+    d.msg_len = + d.text.length;
     d.tstamp = format.parse(d.tstamp);
     d.is_sent = + d.is_sent;
     d.date =  new Date(d.tstamp.getFullYear(), d.tstamp.getMonth(), d.tstamp.getDate()); 

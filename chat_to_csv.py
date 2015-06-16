@@ -3,7 +3,7 @@
 ###  By Sam Shleifer, Peter Dewire since April 8, 2015.
 from contacts import addresses, groupbyContact
 import datetime as dt
-from helpers.utils import filterDF, msgLen
+from helpers.utils import filterDF, msgLen,checkSavedData, concatSaved
 import numpy as np
 import os
 import pandas as pd
@@ -35,15 +35,6 @@ def queryDB(db_path):
   msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
   msg  = msg.merge(hdl, left_on='handle_id', right_on='ROWID')
   ### Find contact names and clean columns
-  msg['chat_id'] = msg.chat_identifier.apply(lambda x: x.replace('+1','')) 
-  clist = addresses(msg)
-  def findName(cid):
-    try:
-      return clist[cid].rstrip()
-    except KeyError:
-      return cid.rstrip()
- 
-  msg['cname'] = msg.chat_id.apply(findName) 
   date_cut = lambda x: dt.datetime.fromtimestamp(x + BASE)
   msg['tstamp'] = msg.date.apply(date_cut)
   msg['day'] = msg.tstamp.apply(lambda x: x.date())
@@ -62,24 +53,18 @@ def readDB(test_path=False):
   backups.append(queryDB(CHAT_DB))
   return filter(lambda x: len(x) > 0, backups) 
 
-def checkSavedData():
-  '''Get saved data if it exists.''' 
-  keep = ['ROWID_x','text','tstamp','chat_id','is_sent','cname']
-  return pd.read_csv('msg.csv')[keep] if os.path.exists('msg.csv') else []
-
-def concatSaved(msg, saved_data):
-  '''Adds saved data to extracted data, if saved data exists.'''
-  str2date = lambda x: dt.datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
-  saved_data['tstamp'] = saved_data.tstamp.apply(str2date) 
-  if 'msg_len' not in saved_data.columns:
-    saved_data['msg_len'] =  saved_data.text.fillna(0).apply(msgLen)
-  cutoff = saved_data.tstamp.max()
-  return pd.concat([saved_data, msg[msg.tstamp > cutoff]])
-
 def writeChat(saved_data=[]):
   '''combine and deduplicate the various db reads'''
-  df = pd.concat(readDB()).drop_duplicates(subset=['day','cname','text']) 
-  return concatSaved(df,saved_data) if saved_data else df
+  msg = pd.concat(readDB()).drop_duplicates(subset=['day','chat_identifier','text']) 
+  clist = addresses(msg)
+  def findName(cid):
+    cid = cid.replace('+1','')
+    try:
+      return clist[cid].rstrip()
+    except KeyError:
+      return cid.rstrip()
+  msg['cname'] = msg.chat_identifier.apply(findName) 
+  return concatSaved(msg,saved_data) if saved_data else msg
 
 def tryCSV(df, path):
   try:
@@ -93,14 +78,14 @@ def main(hidegroups=True, use_saved=False):
   msg = writeChat(saved_data)
   print msg.shape
   if len(argv) <= 1 or hidegroups: 
-    msg = msg[msg.chat_id.str.startswith('chat') != True]
+    msg = filterDF(msg, 'cname', lambda x: not x.startswith('chat'))
   ppl = groupbyContact(msg.copy()).sort('totlen', ascending=False) 
   print ppl.head()
   besties = map(lambda x: x.rstrip(),ppl.index[:10])
   print 'besties:', besties
   ts = timePanel(msg, besties) 
   
-  keep = ['text','tstamp','is_sent','cname','msg_len']
+  keep = ['text','tstamp','is_sent','cname']
   tryCSV(msg[keep], 'msg.csv')
   tryCSV(ts, 'ts.csv')
   tryCSV(ppl, 'ppl.csv')
