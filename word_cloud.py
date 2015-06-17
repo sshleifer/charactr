@@ -15,7 +15,7 @@ def writeWords(msg):
         if w not in stopwords:
           retStr += w.translate(None, punctuation) + ', '
     except UnicodeEncodeError:
-      print 'missing text'
+      retStr += ''      # do nothing
 
   retStr = retStr[:-2]                      # deletes extra ', '
   retStr = retStr.translate(None, ':.')     # deletes : and . -- thoughts?
