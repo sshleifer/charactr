@@ -11,11 +11,11 @@ stopwords = ['i',
    'yours',
    'yourself',
    'yourselves',
-   'he',
+  # 'he',
    'him',
    'his',
    'himself',
-   'she',
+  # 'she',
    'her',
    'hers',
    'herself',
@@ -126,7 +126,8 @@ stopwords = ['i',
    'should',
    'now']
 
-txt_stopwords = ['k', 'kk', 'u','im', 'thx', 'ur', 'urs', 'pce']
+txt_stopwords = ['k', 'kk', 'u','im', 'thx', 'ur', 'urs',
+                  'pce','its','it','ill','ok']
 
 stopwords.extend(txt_stopwords)
 

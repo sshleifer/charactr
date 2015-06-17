@@ -1,6 +1,4 @@
-### cloud.py
-
-from constants import *
+from constants import stopwords, punctuation
 
 # takes in a msg df and writes its message text to a file
 # returns a counter of the words
