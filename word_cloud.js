@@ -16,9 +16,7 @@ function processData (x) {
     for (var prop in counts) {
         words_arr[i] = {text: prop, size: counts[prop] * .03 };
         i = i + 1;
-        // debugger;
     }
-    // words_arr[0] = {text: "Yale", size: 100}
     
     words_arr.sort(function(a, b) {
       return b.size - a.size;
@@ -33,19 +31,17 @@ $(document).ready(function() {
     url: "word_cloud.txt",
     dataType: "text",
     success: function(data) {
-      // var klaus = [{text: "Klaus", size: 60}, {text: "Teuber", size: 70}];
       var counts = processData(data);//.substring(0, 10000000));
       // var angles = [-90, -60, -30, 0, 30, 60, 90];
 
-      d3.layout.cloud().size([300, 300])
+      d3.layout.cloud().size([1200, 1000])
+        .timeInterval(10)
         .words(counts) // [{text: "Sam", size: 60}, {text: "Peter", size: 70}])
         .padding(5)
         .rotate(function() { 
-                  angle = ~~(Math.random() * 2) * 90;
+                  angle = 0 //~~(Math.random() * 2) * 90;
                   // angle = angles[~~(Math.random() * 7)];
-                  // angle = ~~(Math.random() * 90);
-                  // angle = angle < 91
-                return angle;}) //(Math.random() * 2) * 70; })
+                return angle;}) 
         .font("Impact")
         .fontSize(function(d) { return d.size; })
         .on("end", draw)
@@ -53,10 +49,10 @@ $(document).ready(function() {
 
         function draw(words) {
           d3.select("body").append("svg")
-            .attr("width", 300)
-            .attr("height", 300)
+            .attr("width", 1400)
+            .attr("height", 1000)
             .append("g")
-            .attr("transform", "translate(150,150)")
+            .attr("transform", "translate(700,535)")
             .selectAll("text")
             .data(words)
             .enter().append("text")

@@ -11,6 +11,7 @@ import sqlite3
 from sys import argv
 import time
 from time_chart import timePanel
+from word_cloud import writeWords
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 MY_MOBILE_BACKUP = os.path.expanduser("~/Library/Application Support/MobileSync/Backup/54585babaa97cc69042ccbc493d68a229ac8babd/3d0d7e5fb2ce288813306e4d4636395e047a3d28")
@@ -101,6 +102,12 @@ def main(hidegroups=True, use_saved=False):
   tryCSV(msg, 'msg.csv')
   tryCSV(ts, 'ts.csv')
   tryCSV(ppl, 'ppl.csv')
+
+  # create word_cloud.txt
+  if not os.path.isfile('word_cloud.txt'):
+    writeWords(msg)
+  else:
+    print 'not rewriting word_cloud.txt'
 
   ###Statistics for print statement
   names = msg.cname.fillna(0).unique()
