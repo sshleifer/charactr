@@ -92,10 +92,7 @@ def main(hidegroups=True, use_saved=False):
   tryCSV(ppl, 'ppl.csv')
 
   # create word_cloud.txt
-  if not os.path.isfile('word_cloud.txt'):
-    writeWords(msg)
-  else:
-    print 'not rewriting word_cloud.txt'
+  writeWords(msg)
 
   print '''Found %d texts in %d conversations since %s.''' % (len(msg),len(msg.cname.unique()), msg.tstamp.min())
   #return msg # for interactive use
