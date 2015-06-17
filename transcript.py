@@ -18,6 +18,7 @@ def formPrint(row, last):
 def writeHistory(person):
   person = person.lower()
   work = writeChat([])
+  print work.head(
   # stopped here, concat extra space
   sam = work[work.cname == person]
   hai = pd.DataFrame(sam.text, columns = ['text'])
