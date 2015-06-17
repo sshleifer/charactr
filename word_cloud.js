@@ -4,7 +4,8 @@ var fill = d3.scale.category20();
 // of type {text: string, size: int}
 function processData (x) {
     var words = x.split(',');
-    var counts = {}
+    var counts = {};
+    var total_count = 0;
 
     for (var i = 0; i < words.length; i++) {
       var cur = words[i];
@@ -14,7 +15,7 @@ function processData (x) {
     var words_arr = [];
     var i = 0;
     for (var prop in counts) {
-        words_arr[i] = {text: prop, size: counts[prop] * .03 };
+        words_arr[i] = {text: prop, size: Math.pow(counts[prop], .65)};
         i = i + 1;
     }
     
@@ -22,7 +23,17 @@ function processData (x) {
       return b.size - a.size;
     });
 
-    return words_arr.slice(3, 200);
+    for (var j = 1; j < 251; j++) {
+        total_count += words_arr[j].size;
+    }
+
+    var multiplier = (130 * total_count) / words_arr[1].size;
+
+    for (var j = 1; j < 251; j++) {
+        words_arr[j].size = (multiplier * words_arr[j].size) / total_count;
+    }
+
+    return words_arr.slice(1, 250);
 }
 
 $(document).ready(function() {
@@ -52,7 +63,7 @@ $(document).ready(function() {
             .attr("width", 1400)
             .attr("height", 1000)
             .append("g")
-            .attr("transform", "translate(700,535)")
+            .attr("transform", "translate(700,500)")
             .selectAll("text")
             .data(words)
             .enter().append("text")
