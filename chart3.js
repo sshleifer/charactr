@@ -3,15 +3,17 @@ var dataTable = dc.dataTable("#dc-table-graph");
 var charsChart = dc.rowChart("#dc-chars-chart");
 var hourChart = dc.barChart("#dc-hour-chart");
 var dayOfWeekChart = dc.rowChart("#dc-dayweek-chart");
-var islandChart = dc.pieChart("#dc-sent-chart");
+var sentChart = dc.pieChart("#dc-sent-chart");
 var timeChart = dc.lineChart("#dc-time-chart");
 
 var pctFormat = d3.format('%')
+
+
 d3.csv("msg.csv", function (data) {
   var format = d3.time.format("%Y-%m-%d %H:%M:%S");
   
   data.forEach(function(d) { 
-    d.msg_len = + d.msg_len;
+    d.msg_len = + d.text.length;
     d.tstamp = format.parse(d.tstamp);
     d.is_sent = + d.is_sent;
     d.date =  new Date(d.tstamp.getFullYear(), d.tstamp.getMonth(), d.tstamp.getDate()); 
@@ -46,19 +48,19 @@ d3.csv("msg.csv", function (data) {
   var dayOfWeek = facts.dimension(function (d) {
     switch (d.tstamp.getDay()) {
       case 0:
-        return "0.Sun";
+        return "0.sunday";
       case 1:
-        return "1.Mon";
+        return "1.monday";
       case 2:
-        return "2.Tue";
+        return "2.tuesday";
       case 3:
-        return "3.Wed";
+        return "3.wednesday";
       case 4:
-        return "4.Thu";
+        return "4.thursday";
       case 5:
-        return "5.Fri";
+        return "5.friday";
       case 6:
-        return "6.Sat";
+        return "6.saturday";
     }
   });
   var dayOfWeekGroup = dayOfWeek.group()
@@ -91,7 +93,7 @@ d3.csv("msg.csv", function (data) {
     .margins({top: 5, left: 10, right: 10, bottom: 20})
     .dimension(chars)
     .group(filtChar)
-    .colors(d3.scale.category20())
+    .colors(d3.scale.category10())
     .label(function (d){
        return d.key;
     })
@@ -127,27 +129,28 @@ d3.csv("msg.csv", function (data) {
     .elasticX(true)
     .xAxis().ticks(4);
   
-hourChart.width(400)
-  .height(300)
-  .margins({top: 5, left: 40, right: 10, bottom: 20})
-  .dimension(hour)
-  .group(hourGroup)
-  .x(d3.scale.linear().domain([0,23]))
-  .colors(d3.scale.category20())
-  .label(function (d){
-    return d.key;})
-  .title(function(d){return d.value;})
-  .elasticY(true)
-  .xAxis().ticks(4);
+  hourChart.width(400)
+    .height(300)
+    .margins({top: 5, left: 40, right: 10, bottom: 20})
+    .dimension(hour)
+    .group(hourGroup)
+    .x(d3.scale.linear().domain([0,23]))
+    .colors(d3.scale.category20())
+    .label(function (d){
+      return d.key;})
+    .title(function(d){return d.value;})
+    .elasticY(true)
+    .xAxis().ticks(4);
 
 
   // is_sent pie chart
-  islandChart.width(250)
+  sentChart.width(250)
     .height(220)
     .radius(100)
     .innerRadius(30)
     .dimension(sent)
     .group(sentGroup)
+    .colors(d3.scale.category10())
     .label(function(d){
       return d.data.key + " (" + Math.round((d.endAngle-d.startAngle)/Math.PI * 50) + '%)';
     });
