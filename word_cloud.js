@@ -68,8 +68,18 @@ $(document).ready(function() {
             .data(words)
             .enter().append("text")
             .style("font-size", function(d) { return d.size + "px"; })
-            .style("font-family", "Impact")
-            .style("fill", function(d, i) { return fill(i); })
+            .style("font-family", "Georgia")
+            .style("fill", function(d, i) { 
+                    /*
+                    if (Math.random() > .5) {
+                        return "rgb(255, 0, 0)";
+                    } 
+                    else {
+                        return "rgb(0, 204, 0)";
+                    }
+                    */
+                    return fill(i); // })
+                })
             .attr("text-anchor", "middle")
             .attr("transform", function(d) {
               return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
