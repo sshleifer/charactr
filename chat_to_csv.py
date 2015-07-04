@@ -29,7 +29,7 @@ def queryDB(db_path):
     hdl =  pd.read_sql("SELECT * from handle", db)
 
   except Exception as e:
-    print 'Non-Fatal db error at %s \n', e % (db_path)
+    print 'Non-Fatal db error at %s \n', db_path
     return []
   ### Merge db reads
   full_chat = chat.merge(cmj, left_on='ROWID', right_on='chat_id', how='inner')

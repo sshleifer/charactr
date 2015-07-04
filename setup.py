@@ -9,11 +9,14 @@ from setuptools import setup
 
 APP = ['imsg_stats.py']
 DATA_FILES = ['index.html',
+              'scatter2.html',
               'scatter2.js',
               'streamgraph.html',
               'streamgraph.js',
               'chart3.html',
               'chart3.js',
+              'word_cloud.html',
+              'word_cloud.js',
               'style.css',
               'favicon.png']
 #OPTIONS = {'argv_emulation': True, "resources":["index.html"]}
@@ -25,9 +28,9 @@ OPTIONS = {
 setup(
     name='charactr',
     py_modules=['contacts','chat_to_csv','imsg_stats', 'time_chart',
-    'helpers/__init__','helpers/utils'],
-    version='0.2',
-    description='Visualizing your iMessage data',
+    'word_cloud', 'helpers/__init__','helpers/utils'],
+    version='0.3',
+    description='Visualize your iMessage data',
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
