@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <title>Topic Clouds</title> 
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <script src="http://d3js.org/d3.v2.min.js?2.10.0"></script>
+    <script type="text/javascript" src="d3.layout.cloud.js"></script>
+</head>
+ 
+<body>
+<script>
+
+
+wordScale=d3.scale.linear().domain([1,100,1000,10000]).range([10,20,40,80]).clamp(true);
+wordColor=d3.scale.linear().domain([10,20,40,80]).range(["blue","green","orange","red"]);
+
+for (x = 0; x < 3; x++) {
+  viz = d3.select("body").append("svg")
+    .attr("width", 400)
+    .attr("height", 440)
+    .attr("id", "svg" + x);
+}
+for (x = 0; x < 3; x++) {
+//d3.json("topic.json", function(topic) {
+d3.csv("topic_words"+x+".csv", function(topic) {
+  
+  d3.layout.cloud().size([400, 400])
+//      .words([{"text":"test","size":wordScale(.01)},{"text":"bad","size":wordScale(1)}])
+      .words(topic)
+      .rotate(function() { return ~~(Math.random() * 2) * 5; })
+      .fontSize(function(d) { return wordScale(d.size); })
+      .on("end", draw)
+      .start();
+
+  function draw(words) {
+    
+  viz = d3.select("#svg" + topic[0].topic);
+        
+      viz.append("g")
+        .attr("transform", "translate(200,220)")
+      .selectAll("text")
+        .data(words)
+      .enter().append("text")
+        .style("font-size", function(d) { return d.size + "px"; })
+        .style("fill", function(d) { return wordColor(d.size); })
+        .style("opacity", .75)
+        .attr("text-anchor", "middle")
+        .attr("transform", function(d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function(d) { return d.text; });
+    
+    viz
+        .append("text")
+        .data([topic[0]])
+        .style("font-size", 20)
+        .style("font-weight", 900)
+        .attr("x", 100)
+        .attr("y", 20)
+        .text(function(d) { return "TOPIC " + d.topic; })
+
+//  d3.select("#svg"+x).append("svg:text").text("Topic " + x);  
+//    viz.enter().append("svg:text").text("Topic " + x);
+
+  }
+
+})
+}
+</script>

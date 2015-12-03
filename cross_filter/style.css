@@ -1,0 +1,67 @@
+body {
+  font: 11px Avenir;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+  shape-rendering: crispEdges;
+}
+
+#lnk {
+  text-align:center;
+  font-size:18pt;
+}
+
+#desc {
+  font-size: 12pt;
+  text-align: center;
+  width: 100%;
+}
+
+.dot {
+  stroke: #000;
+}
+#sbox {
+  width: 30%;
+}
+.chart {
+  float: left;
+}
+.leaders {
+  float: right;
+}
+.page{
+  width: 100%;
+  overflow: hidden;
+}
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+}
+
+button {
+  position: absolute;
+  right: 50px;
+  top: 10px;
+}
+
+
+h4 span {
+      font-size:14px;
+      font-weight: normal;
+      }
+h2 {
+  float: right;
+}
+h2 span {
+  font-size:14px;
+  font-weight:normal;
+  }
+p {
+  display: block;
+}
+
