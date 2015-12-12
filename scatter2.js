@@ -104,7 +104,7 @@
     return table;
   };
 
-  d3.csv('ppl.csv', (function(error, data) {
+  d3.csv('../csv/ppl.csv', (function(error, data) {
     var byName, peopleTable, sum;
     byName = d3.map();
     sum = 0;

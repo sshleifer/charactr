@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <style>
+    #dc-chars-chart g.row text {
+      fill: black;
+      font-weight: bold;
+    }
+     #dc-dayweek-chart g.row text {
+      fill: black;
+      font-weight: bold;
+    }.
+
+  </style>
+
+  <script type="text/javascript", src="http://d3js.org/d3.v3.min.js"> </script>
+  <script type="text/javascript",
+                   src="http://code.jquery.com/jquery-latest.min.js"> </script>
+  <script type="text/javascript"
+src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js"></script>
+
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.3/dc.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <link href='https://cdnjs.cloudflare.com/ajax/libs/dc/1.7.3/dc.min.css' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="style.css"></style>
+
+   </head>
+
+<body>
+
+<div class='container' style='font: 12px sans-serif;'>
+  <div class="dc-data-count" style="float: left; display:block;">
+    <div align="center">
+      <p id ='lnk' style="display:inline;"> 
+      <a href="../index.html">Home</a> &nbsp; 
+      <a href="../scatter/scatter2.html">Scatter Plot</a> &nbsp; 
+      <a href="../streamgraph/streamgraph.html">Stream Graph</a> &nbsp; 
+      <a href="../cloud/word_cloud.html">Word Cloud</a> &nbsp;
+      <a href="../tree/word_tree.html">Word Tree</a> &nbsp;
+      <a href="../parallel/parallel.html">Parallel Coordinates</a> &nbsp;
+      </p>
+    </div>
+<h2>Crossfilter
+      <span>
+        <span class="filter-count"></span>
+         selected out of 
+        <span class="total-count"></span>
+         messages | 
+        <a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
+      </span>
+    </h2>
+  </div>
+  <div style="clear:both;">
+    <p id='desc'> Click on the bars, or select a portion of the timeseries to
+   filter the data. You can apply multiple filters at once, and see the
+   texts that meet your criteria in the table below. It may take a second to
+   load. The unit of measurement is characters exchanged.</p>
+  </div> 
+  <div class='row'>
+    <div class='span1' id='dc-chars-chart' style="float:left;">
+      <h4> Contacts
+        <span>
+          <a class="reset"
+            href="javascript:charsChart.filterAll();dc.redrawAll();"
+            style="display: none;">
+            reset
+          </a>
+        </span>
+	  </h4>
+    </div>
+  <div class='span4' id='dc-dayweek-chart'>
+      <h4> Day of the Week
+        <span>
+          <a class="reset"
+            href="javascript:dayOfWeekChart.filterAll();dc.redrawAll();"
+            style="display: none;">
+            reset
+          </a>
+        </span>
+      </h4>
+        <div class="clearfix"></div>
+    </div>
+  <div class='span5' id='dc-hour-chart'>
+      <h4> Hour
+        <span>
+          <a class="reset"
+            href="javascript:hourChart.filterAll();dc.redrawAll();"
+            style="display: none;">
+            reset
+          </a>
+        </span>
+      </h4>
+        <div class="clearfix"></div>
+    </div>
+
+
+     <div class='span3' id='dc-sent-chart' style="float:right;">
+      <h4> Sent and Received
+        <span>
+          <a class="reset"
+            href="javascript:sentChart.filterAll();dc.redrawAll();"
+            style="display: none;">
+            reset
+          </a>
+        </span>
+	  </h4>
+    </div>
+
+  </div>
+
+  <div class='row', style="clear:both;">
+    <div class='span12' id='dc-time-chart'>
+      <h4> Characters Exchanged per Day
+        <span>
+          <a class="reset"
+            href="javascript:timeChart.filterAll();dc.redrawAll();"
+            style="display: none;">
+            reset
+          </a>
+        </span>
+	  </h4>
+    </div>
+  </div>
+
+  <div class='row'>
+        
+  <div class='row'>
+	<div class='span12'>
+      <table class='table table-hover' id='dc-table-graph'>
+        <thead>
+          <tr class='header'>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            
+            <th>Status</th>
+            <th>Text</th>
+            <th>Characters</th>
+          </tr>
+        </thead>
+      </table>
+	</div>
+  </div>
+</div>
+  
+<script type="text/javascript", src="chart3.js"></script>
+    
+</body>
+</html>

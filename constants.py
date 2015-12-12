@@ -129,6 +129,6 @@ stopwords = ['i',
 txt_stopwords = ['k', 'kk', 'u','im', 'thx', 'ur', 'urs',
                   'pce','its','it','ill','ok']
 
-stopwords.extend(txt_stopwords)
+# stopwords.extend(txt_stopwords)
 
 punctuation = '-+=;:\'"?/.,!@#$%^&*()'

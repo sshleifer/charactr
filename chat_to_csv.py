@@ -1,6 +1,6 @@
 ###  Reads in some tables from chat.db, joins and cleans them,
 ###  and then calls contacts.py to label phone numbers with contact names.
-###  By Sam Shleifer, Peter Dewire since April 8, 2015.
+
 from contacts import addresses, groupbyContact
 import datetime as dt
 from helpers.utils import filterDF, msgLen,checkSavedData, concatSaved
@@ -11,7 +11,7 @@ import sqlite3
 from sys import argv
 import time
 from time_chart import timePanel
-from word_cloud import writeWords
+from cloud.word_cloud import writeWords
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 MY_MOBILE_BACKUP = os.path.expanduser("~/Library/Application Support/MobileSync/Backup/54585babaa97cc69042ccbc493d68a229ac8babd/3d0d7e5fb2ce288813306e4d4636395e047a3d28")
@@ -73,7 +73,7 @@ def tryCSV(df, path):
   except Exception as e:
     print 'ERROR on CSV WRITE to %s:', e, df % (path)
 
-def main(hidegroups=True, use_saved=False):
+def main(hidegroups=True, use_saved=False, ret_msg=False):
   print "being executed at", os.path.abspath('.')
   saved_data = checkSavedData() if use_saved else []
   msg = writeChat(saved_data)
@@ -87,15 +87,16 @@ def main(hidegroups=True, use_saved=False):
   ts = timePanel(msg, besties) 
   
   keep = ['text','tstamp','is_sent','cname']
-  tryCSV(msg[keep], 'msg.csv')
-  tryCSV(ts, 'ts.csv')
-  tryCSV(ppl, 'ppl.csv')
+  tryCSV(msg[keep], 'csv/msg.csv')
+  tryCSV(ts, 'csv/ts.csv')
+  tryCSV(ppl, 'csv/ppl.csv')
 
   # create word_cloud.txt
   writeWords(msg)
 
   print '''Found %d texts in %d conversations since %s.''' % (len(msg),len(msg.cname.unique()), msg.tstamp.min())
-  #return msg # for interactive use
+  if ret_msg:
+    return msg # for interactive use
 
 if __name__ == '__main__':
   main()
