@@ -463,7 +463,7 @@ d3.csv("../csv/ppl.csv", function(contact_data) {
         var selected = [];
         data
             .filter(function(d) {
-                return !_.contains(excluded_groups, d.text);
+                return !_.contains(excluded_groups, d.group);
             })
         .map(function(d) {
             return actives.every(function(p, dimension) {
@@ -487,7 +487,7 @@ d3.csv("../csv/ppl.csv", function(contact_data) {
 
         // total by food group
         var tallies = _(selected)
-            .groupBy(function(d) { return d.cname; })
+            .groupBy(function(d) { return d.group; })
 
             // include empty groups
             _(colors).each(function(v,k) { tallies[k] = tallies[k] || []; });
