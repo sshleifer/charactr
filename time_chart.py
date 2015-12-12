@@ -17,13 +17,13 @@ def getSumStats(gb):
 def byHour(df, hidegroups=True):
   '''accepts msg DF (returned by  chat_to_csv.writeChat()) and groups by hour.'''
   msg = df.copy()
-  if hidegroups: 
+  if hidegroups:
     msg = msg[msg.cname.str.startswith('chat') != True]
   msg['snt_chars'] = msg['is_sent'] * msg['msg_len']
-  msg['hour'] = msg.tstamp.apply(lambda x : x.hour) 
+  msg['hour'] = msg.tstamp.apply(lambda x : x.hour)
   msg_groups = msg.groupby('hour')
   return getSumStats(msg_groups)
-  
+
 def byDate(df, hidegroups=True, byContact=False):
   '''accepts msg dataframe and groups by month.'''
   msg = df.copy()
@@ -38,19 +38,20 @@ def byDate(df, hidegroups=True, byContact=False):
 def topN(ts, n=4):
   '''NO LONGER BEING USED, BUT AN INTERESTING STRATEGY'''
   '''Finds the set of friends that have been in top N some month'''
-  keep = set() 
+  keep = set()
   ts['mo'] = ts.ymd.apply(lambda x: x.month)
   months = list(ts.mo.unique())
   for m in months:
     new_names = ts[ts.mo == m].sort('msg_len',ascending=False)[:n].cname
     keep.update(new_names)
-  return list(keep) 
+  return list(keep)
 
 
 def timePanel(msg, besties=False, topn=10):
   '''Returns a DF documenting your texting with best n friends over time.'''
+  assert isinstance(msg, pd.DataFrame)
   ts =  byDate(msg, byContact=True)
-  if not besties: besties = topN(ts, topn) 
+  if not besties: besties = topN(ts, topn)
   ts = filterDF(ts,  'cname', lambda x: x in besties)[['cname','ymd','msg_len']]
   ts.columns = ['key','date','value']
   datestr = lambda x: str(x.date())
@@ -60,12 +61,14 @@ def timePanel(msg, besties=False, topn=10):
     tmp = map(str, ts[ts.key == key].date.unique())
     to_add = to_add + [[key,d,0] for d in full_range if d not in tmp]
   if to_add:
-    adder = pd.DataFrame(to_add,columns=['key','date','value'])
-    ts = ts.append(adder).sort(['key','date'])
+    ts = pd.concat([ts, pd.DataFrame(to_add,columns=['key','date','value'])]).sort(['key', 'date'])
+
 
   #cut out early texts
-  dvals = pd.DataFrame(ts.groupby('date').value.agg(np.sum))
+  assert isinstance(ts, pd.DataFrame)
+  dvals = ts.groupby('date').value.sum().to_frame()
   dvals['csum'] = dvals.value.cumsum()/dvals.value.sum()
-  cutdate = str(dvals[dvals.csum > .01].index[0])
   ts['date'] = ts.date.apply(str)
-  return ts[ts.date >= cutdate].set_index('key')
+  return ts.set_index('key')
+  #cutdate = str(dvals[dvals.csum > .01].index[0])
+  #return ts[ts.date >= cutdate].set_index('key')
