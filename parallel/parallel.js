@@ -98,7 +98,7 @@ d3.csv("../csv/ppl.csv", function(contact_data) {
         .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
     // Load the data and visualization
-    d3.csv("parallel.csv", function(raw_data) {
+    d3.csv("../csv/parallel.csv", function(raw_data) {
         // Convert quantitative scales to floats
         data = raw_data.map(function(d) {
             for (var k in d) {
