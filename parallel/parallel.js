@@ -29,37 +29,7 @@ d3.csv("../csv/ppl.csv", function(contact_data) {
         contacts.push(tmp_var.cname);
     });
 
-    var colors = {
-        "Baby Foods": [185,56,73],
-    "Baked Products": [37,50,75],
-    "Beef Products": [325,50,39],
-    "Beverages": [10,28,67],
-    "Breakfast Cereals": [271,39,57],
-    "Cereal Grains and Pasta": [56,58,73],
-    "Dairy and Egg Products": [28,100,52],
-    "Ethnic Foods": [41,75,61],
-    "Fast Foods": [60,86,61],
-    "Fats and Oils": [30,100,73],
-    "Finfish and Shellfish Products": [318,65,67],
-    "Fruits and Fruit Juices": [274,30,76],
-    "Lamb, Veal, and Game Products": [20,49,49],
-    "Legumes and Legume Products": [334,80,84],
-    "Meals, Entrees, and Sidedishes": [185,80,45],
-    "Nut and Seed Products": [10,30,42],
-    "Pork Products": [339,60,49],
-    "Poultry Products": [359,69,49],
-    "Restaurant Foods": [204,70,41],
-    "Sausages and Luncheon Meats": [1,100,79],
-    "Snacks": [189,57,75],
-    "Soups, Sauces, and Gravies": [110,57,70],
-    "Spices and Herbs": [214,55,79],
-    "Sweets": [339,60,75],
-    "Vegetables and Vegetable Products": [120,56,40]
-    };
-    colors["jay losty"] = [185,56,73];
-    colors["mom"] = [37, 50, 75];
-    colors["cecily mcintyre"] = [325, 50, 79];
-
+    var colors = {}
 
     for (var i = 0; i < contacts.length; i++) {
         //console.log(contacts[i]);
@@ -92,11 +62,12 @@ d3.csv("../csv/ppl.csv", function(contact_data) {
             colors[contacts[i]] = [20, 49, 49];
         }
     }
+    console.log(colors)
     // Scale chart and canvas height
     d3.select("#chart")
         .style("height", (h + m[0] + m[2]) + "px")
 
-        d3.selectAll("canvas")
+    d3.selectAll("canvas")
         .attr("width", w)
         .attr("height", h)
         .style("padding", m.join("px ") + "px");
@@ -127,7 +98,7 @@ d3.csv("../csv/ppl.csv", function(contact_data) {
         .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
     // Load the data and visualization
-    d3.csv("nutrients.csv", function(raw_data) {
+    d3.csv("../csv/parallel.csv", function(raw_data) {
         // Convert quantitative scales to floats
         data = raw_data.map(function(d) {
             for (var k in d) {
@@ -433,7 +404,13 @@ d3.csv("../csv/ppl.csv", function(contact_data) {
 
     function color(d,a) {
         var c = colors[d];
-        return ["hsla(",c[0],",",c[1],"%,",c[2],"%,",a,")"].join("");
+        if (c){
+            return ["hsla(",c[0],",",c[1],"%,",c[2],"%,",a,")"].join("");
+        }
+        else{
+            // c is undefined and I dont want TypeError
+            return ["hsla(",20,",",49,"%,",49,"%,",a,")"].join("");
+        }
     }
 
     function position(d) {

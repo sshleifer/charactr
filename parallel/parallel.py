@@ -1,14 +1,13 @@
 import pandas as pd
+import datetime
 
-#takes in msg df and writes to parallel.csv
-def parallel_csv(msg):
-  new_df = pd.DataFrame(msg.text)
-  new_df['contact'] = msg.cname
-  new_df['is_sent'] = msg.is_sent
-  # new_df['length (chars)'] = 
-  # new_df['length (words)'] = 
-  new_df.to_csv('parallel.csv')
-  
+msg = pd.read_csv('csv/msg.csv', index_col=0)
+msg['days_old'] = pd.to_datetime(msg.tstamp).apply(lambda x: (datetime.datetime.now() - x).days)
+msg['n_chars'] = msg.text.fillna('').apply(len)
 
-msg = pd.read_csv('../csv/msg.csv')
-parallel_csv(msg)
+original_cols = ['text', 'cname', 'is_sent', 'n_chars', 'days_old']
+new_cols = ['name', 'group',  'sent?', 'len (chars)', 'days old']
+
+m2 = msg[original_cols]
+m2.columns = new_cols
+m2.set_index('name').to_csv('csv/parallel.csv')
