@@ -3,15 +3,17 @@
 
 from contacts import addresses, groupbyContact
 import datetime as dt
-from helpers.utils import filterDF, msgLen,checkSavedData, concatSaved
 import numpy as np
 import os
 import pandas as pd
 import sqlite3
 from sys import argv
 import time
-from time_chart import timePanel
+
 from cloud.word_cloud import writeWords
+from helpers.utils import filterDF, msgLen,checkSavedData, concatSaved
+from parallel.parallel import write_parallel_csv
+from time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 MY_MOBILE_BACKUP = os.path.expanduser("~/Library/Application Support/MobileSync/Backup/54585babaa97cc69042ccbc493d68a229ac8babd/3d0d7e5fb2ce288813306e4d4636395e047a3d28")
@@ -42,6 +44,7 @@ def queryDB(db_path):
   msg['msg_len'] =  msg.text.fillna('').apply(msgLen)
   return msg
   #return msg[keep]
+
 
 def readDB(test_path=False):
   '''Reads text data from all possible iPhone backups.
@@ -88,7 +91,7 @@ def main(hidegroups=True, use_saved=False, ret_msg=False):
   besties = map(lambda x: x.rstrip(),ppl.index[:10])
   print 'besties:', besties
   if not os.path.exists('csv/'):
-    os.makedir('csv')
+    os.mkdir('csv')
   ts = timePanel(msg, besties)
 
   keep = ['text','tstamp','is_sent','cname']
@@ -96,6 +99,7 @@ def main(hidegroups=True, use_saved=False, ret_msg=False):
   tryCSV(msg[keep], 'csv/msg.csv')
   tryCSV(ts, 'csv/ts.csv')
   tryCSV(ppl, 'csv/ppl.csv')
+  write_parallel_csv(msg[keep])
 
   # create word_cloud.txt
   writeWords(msg)
