@@ -17,21 +17,20 @@ issue or email to sshleifer@gmail.com.
 ##Instructions for Developers (from terminal):
 - $ `git clone` **this repo**
 - $ `cd imsg_stats`
-- $ `python imsg_stats.py` to see the charts
+- $ `python run.py` to see the charts
 - If that failed, try $ `pip install -r requirements.txt`
 
 The data are read from `~/Library/Messages/chat.db` by the `read_db()` function in `chat_to_csv.py`
 
-Cleaned data are written to `imsg_stats/ppl.csv`and `imsg_stats/msg.csv`.
-`scatter2.coffee`, `streamgraph.js` and `chart3.js` render Charts 1,2 and 3 respectively.
+Cleaned data are written to `imsg_stats/outputs/`
+Frontend: `scatter2.coffee`, `streamgraph.js` and `chart3.js` render Charts 1,2 and 3 respectively.
 
-
-Play with your data and send pull requests!
+Help and feature requests welcome, needed
 
 
 ##Saving Your Data (without viewing charts)
 - $ `git clone` **this repo**
-- $ `python save_data.py`
+- $ `python scripts/save_data.py`
 - $ data will be written to `imsg_stats/msg.csv`
 
 ##Future Plans

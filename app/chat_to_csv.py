@@ -1,16 +1,16 @@
-###    Reads in some tables from chat.db, joins and cleans them,
-###    and then calls contacts.py to label phone numbers with contact names.
-from contacts import addresses, groupbyContact
+'''Reads in some tables from chat.db, joins and cleans them,
+and then calls contacts.py to label phone numbers with contact names.'''
 import datetime as dt
 import os
 import pandas as pd
 import sqlite3
 from sys import argv
 
-from cloud.word_cloud import writeWords
-from helpers.utils import filterDF, msgLen, checkSavedData, concatSaved
-from parallel.parallel import write_parallel_csv
-from time_chart import timePanel
+from app.contacts import addresses, groupbyContact
+from app.word_cloud import writeWords
+from app.helpers.utils import filterDF, msgLen, checkSavedData, concatSaved
+from app.parallel import write_parallel_csv
+from app.time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 PTH = '3d0d7e5fb2ce288813306e4d4636395e047a3d28'
