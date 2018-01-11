@@ -60,8 +60,6 @@ def timePanel(msg, besties=False, topn=10):
   for key in ts.key.unique():
     tmp = map(str, ts[ts.key == key].date.unique())
     to_add = to_add + [[key,d,0] for d in full_range if d not in tmp]
-  if to_add:
-    ts = pd.concat([ts, pd.DataFrame(to_add,columns=['key','date','value'])]).sort(['key', 'date'])
 
 
   #cut out early texts

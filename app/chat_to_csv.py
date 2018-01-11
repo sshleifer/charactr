@@ -15,7 +15,18 @@ from app.time_chart import timePanel
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
 PTH = '3d0d7e5fb2ce288813306e4d4636395e047a3d28'
 MOBILE_BASE = os.path.expanduser('~/Library/Application Support/MobileSync/Backup/')
-BASE = 978307200
+DATE_OFFSET_THAT_SOMEHOW_WORKS = 978307200
+#for magic date offset, see https://stackoverflow.com/questions/10746562/parsing-date-field-of-iphone-sms-file-from-backup
+
+
+def date_converter(apple_offset_dt):
+    try:
+        # some users have 9 extra digits on their timestamps, like shleifer
+        date_int = int(str(apple_offset_dt)[:9])
+        return dt.datetime.fromtimestamp(date_int + DATE_OFFSET_THAT_SOMEHOW_WORKS)
+    except Exception:
+        return dt.datetime.fromtimestamp(apple_offset_dt + DATE_OFFSET_THAT_SOMEHOW_WORKS)
+
 
 def queryDB(db_path):
     '''Writes message number,type. text, other person and date to msg, a df'''
@@ -33,8 +44,9 @@ def queryDB(db_path):
     msg = msg_raw.merge(full_chat, left_on='ROWID', right_on='message_id')
     msg = msg.merge(hdl, left_on='handle_id', right_on='ROWID')
     ### Find contact names and clean columns
-    date_cut = lambda x: dt.datetime.fromtimestamp(x + BASE)
-    msg['tstamp'] = msg.date.apply(date_cut)
+
+    #date_cut = lambda x: dt.datetime.fromtimestamp(x + DATE_OFFSET_THAT_SOMEHOW_WORKS)
+    msg['tstamp'] = msg.date.apply(date_converter)
     msg['day'] = msg.tstamp.apply(lambda x: x.date())
     msg['msg_len'] = msg.text.fillna('').apply(msgLen)
     return msg
@@ -73,7 +85,7 @@ def tryCSV(df, path):
         print 'ERROR on CSV WRITE to %s:', e, df % (path)
 
 
-def create_csvs(hidegroups=True, use_saved=False, ret_msg=False, n_best=10):
+def create_csvs(hidegroups=True, use_saved=False, n_best=10):
     '''Create the relevant csvs'''
     print "being executed at", os.path.abspath('.')
     saved_data = checkSavedData() if use_saved else []

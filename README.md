@@ -17,8 +17,9 @@ issue or email to sshleifer@gmail.com.
 ##Instructions for Developers (from terminal):
 - $ `git clone` **this repo**
 - $ `cd imsg_stats`
-- $ `python run.py` to see the charts
+- $ `python app/run.py` to see the charts
 - If that failed, try $ `pip install -r requirements.txt`
+
 
 The data are read from `~/Library/Messages/chat.db` by the `read_db()` function in `chat_to_csv.py`
 
