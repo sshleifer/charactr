@@ -2,7 +2,7 @@
 A standalone desktop app that allows Mac/iMessage users to interactively visualize their
 texting history, using [d3.js] (http://d3js.org/) and [crossfilter.js](http://square.github.io/crossfilter/).
 
-##Quick Install:
+## Quick Install:
 1. Download charactr [Here] (http://pjdewire.github.io/charactr_site/).
 2. Right click and open on the charactr application.
 3. This should open `localhost:8000` in your browser, with the scatterplot
@@ -14,10 +14,10 @@ texting history, using [d3.js] (http://d3js.org/) and [crossfilter.js](http://sq
 If something breaks, take a screenshot of your Mac and/or browser console, and post it as an
 issue or email to sshleifer@gmail.com.
 
-##Instructions for Developers (from terminal):
-- $ `git clone` **this repo**
+## Instructions for Developers (from terminal):
+- $ `git clone git@github.com:sshleifer/imsg_stats.git`
 - $ `cd imsg_stats`
-- $ `python app/run.py` to see the charts
+- $ `python app/run.py` to see the charts (you may need to adjust your path)
 - If that failed, try $ `pip install -r requirements.txt`
 
 
