@@ -1,3 +1,5 @@
 *.csv
 *.pyc
 *.ipynb
+cloud/word_cloud.txt
+.eggs
