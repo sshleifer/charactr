@@ -18,7 +18,6 @@ Cleaned data are written to `imsg_stats/csv/`
 Then some javascript runs that looks for the cleaned data and makes some pretty visualizations
 Help and feature requests welcome and sorely needed!
 
-
 ## Desktop app  (broken, help fix!)
 1. Download charactr [Here] (http://pjdewire.github.io/charactr_site/).
 2. Right click and open on the charactr application.
