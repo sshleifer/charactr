@@ -13,7 +13,7 @@ from app.parallel import write_parallel_csv
 from app.time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
-PTH = '3d0d7e5fb2ce288813306e4d4636395e047a3d28'
+BASENAME_ON_MOST_MACHINES = '3d0d7e5fb2ce288813306e4d4636395e047a3d28'
 MOBILE_BASE = os.path.expanduser('~/Library/Application Support/MobileSync/Backup/')
 DATE_OFFSET_THAT_SOMEHOW_WORKS = 978307200
 #for magic date offset, see https://stackoverflow.com/questions/10746562/parsing-date-field-of-iphone-sms-file-from-backup
@@ -28,7 +28,7 @@ def date_converter(apple_offset_dt):
         return dt.datetime.fromtimestamp(apple_offset_dt + DATE_OFFSET_THAT_SOMEHOW_WORKS)
 
 
-def queryDB(db_path):
+def make_dataframe_from_db_files(db_path):
     '''Writes message number,type. text, other person and date to msg, a df'''
     try:
         db = sqlite3.connect(db_path)
@@ -52,21 +52,23 @@ def queryDB(db_path):
     return msg
 
 
-def readDB(test_path=False):
+def query_all_possible_sources(test_path=None):
     '''Reads text data from all possible iPhone backups.
         Falls back on iMessage (which is smaller).'''
-    backups = [queryDB(os.path.join(x[0], PTH)) for x in os.walk(MOBILE_BASE) if PTH in x[2]]
+    backups = [make_dataframe_from_db_files(os.path.join(x[0], BASENAME_ON_MOST_MACHINES))
+               for x in os.walk(MOBILE_BASE)
+               if BASENAME_ON_MOST_MACHINES in x[2]]
     if not backups:
         print 'Could not find iPhone backup'
-    if test_path:
-        backups.append(queryDB(test_path))
-    backups.append(queryDB(CHAT_DB))
+    if test_path is not None:
+        backups.append(make_dataframe_from_db_files(test_path))
+    backups.append(make_dataframe_from_db_files(CHAT_DB))
     return filter(lambda x: len(x) > 0, backups)
 
-
-def writeChat(saved_data=[]):
+SAVE_DIR = 'csv/'
+def concat_and_deduplicate_history(saved_data=[]):
     '''combine and deduplicate the various db reads'''
-    msg = pd.concat(readDB()).drop_duplicates(subset=['day','chat_identifier','text'])
+    msg = pd.concat(query_all_possible_sources()).drop_duplicates(subset=['day', 'chat_identifier', 'text'])
     clist = addresses(msg)
     def findName(cid):
         cid = cid.replace('+1','')
@@ -78,7 +80,7 @@ def writeChat(saved_data=[]):
     return concatSaved(msg,saved_data) if saved_data else msg
 
 
-def tryCSV(df, path):
+def try_df_to_csv(df, path):
     try:
         df.to_csv(path, encoding='utf-8')
     except Exception as e:
@@ -89,7 +91,7 @@ def create_csvs(hidegroups=True, use_saved=False, n_best=10):
     '''Create the relevant csvs'''
     print "being executed at", os.path.abspath('.')
     saved_data = checkSavedData() if use_saved else []
-    msg = writeChat(saved_data)
+    msg = concat_and_deduplicate_history(saved_data)
     print msg.shape
     if len(argv) <= 1 or hidegroups:
         msg = filterDF(msg, 'cname', lambda x: not x.startswith('chat'))
@@ -97,19 +99,20 @@ def create_csvs(hidegroups=True, use_saved=False, n_best=10):
     print ppl.head()
     besties = map(lambda x: x.rstrip(), ppl.index[:n_best])
     print 'besties:', besties
-    if not os.path.exists('csv/'):
-        os.mkdir('csv')
-    ts = timePanel(msg, besties)
-
+    if not os.path.exists(SAVE_DIR):
+        os.mkdir(SAVE_DIR)
+    ts = timePanel(msg, besties)  # is this still needed?
     keep_cols = ['text','tstamp','is_sent','cname']
-    assert os.path.exists('csv/')
-    tryCSV(msg[keep_cols], 'csv/msg.csv')
-    tryCSV(ts, 'csv/ts.csv')
-    tryCSV(ppl, 'csv/ppl.csv')
-    write_parallel_csv(msg[keep_cols])
+
+    try_df_to_csv(msg[keep_cols], SAVE_DIR + 'msg.csv')
+    try_df_to_csv(ts, SAVE_DIR + 'ts.csv')
+    try_df_to_csv(ppl, SAVE_DIR + 'ppl.csv')
+    # write_parallel_csv(msg[keep_cols])
     writeWords(msg) # create word_cloud.txt
-    result_message = 'Found {} texts in {} conversations since {}'
-    print result_message.format(len(msg),  msg.cname.nunique(), msg.tstamp.min())
+    result_message = 'Found {} texts in {} conversations from {} to {}'.format(
+        len(msg), msg.cname.nunique(), msg.tstamp.min(), msg.tstamp.max()
+    )
+    print result_message
     return msg  # for interactive use
 
 
