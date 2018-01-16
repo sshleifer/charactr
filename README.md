@@ -1,15 +1,15 @@
 # charactr
-Mac/iMessage users can interactively visualize their
-texting history, using pandas, [d3.js] (http://d3js.org/) and [crossfilter.js](http://square.github.io/crossfilter/).
+iPhone/iMessage users can interactively visualize their
+texting history, using pandas, [d3.js](http://d3js.org/) and [crossfilter.js](http://square.github.io/crossfilter/).
 
-You must have a mac with iMessage installed. It may also work without iMessage but with an itunes backup.
+You must have a mac with either iMessage or itunes backups of your iphone.
 
-## From command line:
-- $ `git clone git@github.com:sshleifer/imsg_stats.git`
-- $ `cd imsg_stats`
-- $ `export PYTHONPATH=PYTHONPATH:"."`
-- $ `python app/run.py` to see the charts (you may need to adjust your path)
-- If that failed, try $ `pip install -r requirements.txt`
+## Instructions from command line:
+- `git clone git@github.com:sshleifer/charactr.git`
+- `cd charactr`
+- `export PYTHONPATH=PYTHONPATH:"."`
+- `python app/run.py`
+- If that failed, try `pip install -r requirements.txt`
 
 
 
@@ -32,12 +32,11 @@ issue or email to sshleifer at gmail dot com.
 
 
 ## Saving Your Data (without viewing charts)
-- $ `git clone` **this repo**
-- $ `python scripts/save_data.py`
-- $ data will be written to `imsg_stats/msg.csv`
+- `python scripts/save_data.py`
+- data will be written to `imsg_stats/msg.csv`
 
 
-# Privacy
+## Privacy
 - we dont have a server. No data leaves your local machine!
 
 ## Future Plans

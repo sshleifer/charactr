@@ -6,9 +6,9 @@ import pandas as pd
 import sqlite3
 from sys import argv
 
-from app.contacts import addresses, groupbyContact
+from app.contacts import addresses, agg_by_contact
 from app.word_cloud import writeWords
-from app.helpers.utils import filterDF, msgLen, checkSavedData, concatSaved
+from app.helpers.utils import filter_based_on_col, safe_msg_len, check_saved_data, concat_saved_data
 from app.time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
@@ -47,7 +47,7 @@ def make_dataframe_from_db_files(db_path):
     #date_cut = lambda x: dt.datetime.fromtimestamp(x + DATE_OFFSET_THAT_SOMEHOW_WORKS)
     msg['tstamp'] = msg.date.apply(date_converter)
     msg['day'] = msg.tstamp.apply(lambda x: x.date())
-    msg['msg_len'] = msg.text.fillna('').apply(msgLen)
+    msg['msg_len'] = msg.text.fillna('').apply(safe_msg_len)
     return msg
 
 
@@ -67,16 +67,18 @@ def query_all_possible_sources(test_path=None):
 SAVE_DIR = 'csv/'
 def concat_and_deduplicate_history(saved_data=[]):
     '''combine and deduplicate the various db reads'''
-    msg = pd.concat(query_all_possible_sources()).drop_duplicates(subset=['day', 'chat_identifier', 'text'])
+    msg = pd.concat(query_all_possible_sources()).drop_duplicates(
+        subset=['day', 'chat_identifier', 'text']
+    )
     clist = addresses(msg)
-    def findName(cid):
+    def find_name(cid):
         cid = cid.replace('+1','')
         try:
             return clist[cid].rstrip()
         except KeyError:
             return cid.rstrip()
-    msg['cname'] = msg.chat_identifier.apply(findName)
-    return concatSaved(msg,saved_data) if saved_data else msg
+    msg['cname'] = msg.chat_identifier.apply(find_name)
+    return concat_saved_data(msg, saved_data) if saved_data else msg
 
 
 def try_df_to_csv(df, path):
@@ -89,12 +91,12 @@ def try_df_to_csv(df, path):
 def create_csvs(hidegroups=True, use_saved=False, n_best=10):
     '''Create the relevant csvs'''
     print "being executed at", os.path.abspath('.')
-    saved_data = checkSavedData() if use_saved else []
+    saved_data = check_saved_data() if use_saved else []
     msg = concat_and_deduplicate_history(saved_data)
     print msg.shape
     if len(argv) <= 1 or hidegroups:
-        msg = filterDF(msg, 'cname', lambda x: not x.startswith('chat'))
-    ppl = groupbyContact(msg.copy()).sort_values('totlen', ascending=False)
+        msg = filter_based_on_col(msg, 'cname', lambda x: not x.startswith('chat'))
+    ppl = agg_by_contact(msg.copy()).sort_values('totlen', ascending=False)
     print ppl.head()
     besties = map(lambda x: x.rstrip(), ppl.index[:n_best])
     print 'besties:', besties

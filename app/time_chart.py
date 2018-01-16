@@ -3,7 +3,7 @@
 # and the y axis is characters exchanged
 import numpy as np
 import pandas as pd
-from helpers.utils import filterDF
+from helpers.utils import filter_based_on_col
 from types import *
 
 def getSumStats(gb):
@@ -52,7 +52,7 @@ def timePanel(msg, besties=False, topn=10):
   assert isinstance(msg, pd.DataFrame)
   ts =  byDate(msg, byContact=True)
   if not besties: besties = topN(ts, topn)
-  ts = filterDF(ts,  'cname', lambda x: x in besties)[['cname','ymd','msg_len']]
+  ts = filter_based_on_col(ts, 'cname', lambda x: x in besties)[['cname', 'ymd', 'msg_len']]
   ts.columns = ['key','date','value']
   datestr = lambda x: str(x.date())
   full_range = map(datestr, pd.date_range(ts.date.min(), ts.date.max()))
