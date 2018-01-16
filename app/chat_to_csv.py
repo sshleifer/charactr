@@ -9,7 +9,6 @@ from sys import argv
 from app.contacts import addresses, groupbyContact
 from app.word_cloud import writeWords
 from app.helpers.utils import filterDF, msgLen, checkSavedData, concatSaved
-from app.parallel import write_parallel_csv
 from app.time_chart import timePanel
 
 CHAT_DB = os.path.expanduser("~/Library/Messages/chat.db")
